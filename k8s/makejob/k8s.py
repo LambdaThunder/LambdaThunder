@@ -55,6 +55,9 @@ def get_job_logs(iden):
     cmd = ["kubectl", "logs", pod, "-c", f"my-container-{num+1}"]
     result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, text=True)
     logs.append(result.stdout)
+
+  for idx, log in enumerate(logs):
+      print(idx,log,"\n")
   return logs
 
 # Job 삭제
@@ -94,19 +97,32 @@ def send_json_message_to_sqs(json_text, iden):
 def package_json (log_list):
   log_dict = dict()
   for idx, log in enumerate(log_list):
-    text = json.loads(log)
+    if log :
+      print(f"===={log}====")
+      try :
+        text = json.loads(log)
+      except :
+        pass
+    else :
+      text  = {                           
+        "Print" : "",        
+        "Return" : "Time Out!", 
+        "Solution" : "",           
+        "Win" : False             
+      }     
     log_dict[str(idx)] = text
   
   log_json = json.dumps(log_dict, indent=2)
-  print(log_json)
   return log_json
 
 # 사실상의 Main 함수
 def run_k8s(iden, code, image, env):
   iden = str(iden)
   create_kubernetes_job(iden, code, image, env)
-  subprocess.run(["kubectl", "wait", "--for=condition=complete", f"job/{iden}"])
-
+  try : 
+    subprocess.run(["kubectl", "wait", "--for=condition=complete", f"job/{iden}"])
+  except Exception as e :
+    print(f"Error: {e}")
   text = get_job_logs(iden)
   thread = threading.Thread(target=plzcleanup, args=(iden,))
   thread.start()
