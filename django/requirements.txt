@@ -54,3 +54,8 @@ sqlparse==0.4.4
 typing_extensions==4.8.0
 urllib3==1.25.10
 wcwidth==0.2.5
+djago-environ
+pymysql
+django-cors-headers
+django-compressor
+django-libsass
