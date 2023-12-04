@@ -33,12 +33,17 @@
       window.logEditorValue = function() {
         var code = editor.getValue();
         var args = getValues();
-        var json_data = {
-          CODE : code,
-          ARGS : args
-        };
-        var jsonString = JSON.stringify(json_data, null, 2);
-        webSocket.send(jsonString);
+        if (args) {
+          alert("매개변수에 빈칸이 있으면 안됩니다.")
+        }
+        else {
+          var json_data = {
+            CODE : code,
+            ARGS : args
+          };
+          var jsonString = JSON.stringify(json_data, null, 2);
+          webSocket.send(jsonString);
+        }
       };
     });
     webSocket.onmessage = function(event) {
@@ -61,7 +66,7 @@
 
   <!-- Overlay Area -->
   <div id="overlay" class="overlay">
-    <div class="overlay-content">
+    <div class="overlay-content" >
       <div id="table-container">
         <table id="myTable">
           <thead>
@@ -91,7 +96,7 @@
       <div class="code">
         <div id="container"></div>
       </div>
-      <div class="item text" id="return">
+      <div class="item text overflow" id="return">
       </div>
     </div>
   </div>

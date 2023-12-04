@@ -31,6 +31,7 @@ body {
     justify-content: center;
     margin: 5px;
     height: calc(100% - 150px);
+    width: 100%;
 }
 .grid {
     display: grid;
@@ -74,14 +75,83 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 9998;
+    overflow: auto;
 }
 
 .overlay-content {
     background-color: #fff;
     padding: 20px;
-    width: 50%;
-    height: 50%;
+    width: 75%;
+    height: 75%;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     z-index: 9999;
+}
+
+.form__group {
+    position: relative;
+    padding: 15px 0 0;
+    margin-top: 10px;
+    width: 50%;
+}
+
+.table_cell {
+    font-family: inherit;
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid #9b9b9b;
+    outline: 0;
+    font-size: 1.3rem;
+    color: #212121;
+    padding: 7px 0;
+    background: transparent;
+    transition: border-color 0.2s;
+}
+.table_cell::-moz-placeholder {
+    color: transparent;
+}
+.table_cell::placeholder {
+    color: transparent;
+}
+.table_cell:-moz-placeholder-shown ~ .form__label {
+    font-size: 1.3rem;
+    cursor: text;
+    top: 20px;
+}
+.table_cell:placeholder-shown ~ .form__label {
+    font-size: 1.3rem;
+    cursor: text;
+    top: 20px;
+}
+
+.form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: #9b9b9b;
+}
+
+.table_cell:focus {
+    padding-bottom: 6px;
+    font-weight: 700;
+    border-width: 3px;
+    -o-border-image: linear-gradient(to right, #11998e, #38ef7d);
+        border-image: linear-gradient(to right, #11998e, #38ef7d);
+    border-image-slice: 1;
+}
+.table_cell:focus ~ .form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: #11998e;
+    font-weight: 700;
+}
+
+/* reset input */
+    .table_cell:required, .form__field:invalid {
+    box-shadow: none;
 }

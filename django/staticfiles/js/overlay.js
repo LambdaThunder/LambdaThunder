@@ -22,7 +22,13 @@ function getValues() {
         var values = [];
 
         for (var j = 0; j < cells.length - 1; j++) {  // 마지막 열은 삭제 버튼이므로 제외
-            values.push(cells[j].getElementsByTagName('input')[0].value);
+            var inputValue = cells[j].getElementsByTagName('input')[0].value;
+
+            if (inputValue === "") {
+                return false;
+            }
+
+            values.push(inputValue);
         }
         var text = "["  + values.join(", ") + "]"
         args.push(text)
@@ -136,7 +142,7 @@ function show_json(receivedMessage) {
         }
         tmp += text
     }
-    text = "<p id='headliner'>" + count + "문제 중 " + suc + "문제 정답!</p>\n" + tmp
+    text = "<p id='headliner'>" + count + "문제 중 " + suc + "문제 정답!</p>\n" + tmp + "</ul>"
     console.log(receivedMessage)
     return text
 }
