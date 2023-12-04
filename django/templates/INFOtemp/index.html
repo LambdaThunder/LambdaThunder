@@ -2,10 +2,11 @@
 <!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=1">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=2">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/overlay.css' %}?version=2">
   
-  <script src="{% static 'lib/min/vs/loader.js' %}?version=1"></script>
-  <script src="{% static 'js/overlay.js' %}?version=1"></script>
+  <script src="{% static 'lib/min/vs/loader.js' %}?version=2"></script>
+  <script src="{% static 'js/overlay.js' %}?version=2"></script>
   <script>
     window.onload = setInit;
 
@@ -71,10 +72,27 @@
         </table>
       </div>
       <p>
-        <button onclick="addRow()">행 추가</button>
+      <div class="container">
+  <a class="button" href="#" style="--color:#1e9bff;" onclick="addRow()">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    행추가
+  </a>
+  <a class="close-btn button" href="#" style="--color: #ff1867;" onclick="closeOverlay()">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    닫기
+  </a>
+  {% comment %} <button class="close-btn" onclick="closeOverlay()">닫기</button> {% endcomment %}
+</div>
+        {% comment %} <button onclick="addRow()">행 추가</button>
         <button class="close-btn" onclick="closeOverlay()">
           닫기
-        </button>
+        </button> {% endcomment %}
       </p>
     </div>
   </div>
