@@ -150,8 +150,3 @@ body {
     color: #11998e;
     font-weight: 700;
 }
-
-/* reset input */
-    .table_cell:required, .form__field:invalid {
-    box-shadow: none;
-}
