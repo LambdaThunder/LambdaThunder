@@ -1,69 +1,3 @@
-body {
-  background-color: #2a2a2a;
-  height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
-#container {
-  height: 100%;
-  width: 100%;
-}
-.bar{
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 50px;
-}
-  #TopBar {
-      background-color: blueviolet;
-  }
-  #MiddleBar {
-      background-color: blue;
-  }
-.item {
-  background-color: #212121;
-  margin: 5px;
-}
-.case {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 5px;
-  height: calc(100% - 150px);
-  width: 100%;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  height: 100%;
-  width: 100%;
-  gap: 2px;
-}
-.merged {
-  overflow-y: auto;
-  grid-row: span 2; /* 좌측의 두 열을 합병 */
-}
-.code {
-  margin: 5px;
-  width: 100%;
-  height: 100%;
-}
-.under {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 50px;
-}
-#submit {
-  height: 30px;
-}
-.text {
-  text-align: left;
-  margin: 20px;
-  color: aquamarine;
-}
 .overlay {
   display: none;
   position: fixed;
@@ -137,7 +71,7 @@ body {
   font-weight: 700;
   border-width: 3px;
   -o-border-image: linear-gradient(to right, #11998e, #38ef7d);
-      border-image: linear-gradient(to right, #11998e, #38ef7d);
+  border-image: linear-gradient(to right, #11998e, #38ef7d);
   border-image-slice: 1;
 }
 .table_cell:focus ~ .form__label {
@@ -154,18 +88,6 @@ body {
   .table_cell:required, .form__field:invalid {
   box-shadow: none;
 }
-
-/* demo */
-body {
-  font-family: "Poppins", sans-serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-size: 1.5rem;
-  background-color: #222222;
-}/*# sourceMappingURL=ovrlay.css.map */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700;800;900&display=swap');
 
