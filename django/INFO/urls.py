@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path('', views.login, name="login"),
     path('index/', views.index, name="index"),
@@ -10,4 +11,7 @@ urlpatterns = [
     path('login_view/', views.login_view, name="login_view"),
     path('list2/', views.list2, name="list2"),
     path('logout/', views.logout_view, name='logout'),
+    path('form/', views.form, name="form"),
+    path('myview/', views.myview, name='myview'),
 ]
+

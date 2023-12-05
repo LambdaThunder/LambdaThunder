@@ -1,0 +1,86 @@
+{% load compress %}
+{% load static %}
+{% compress css %}
+<link rel="stylesheet" type="text/x-scss" href="{% static 'css/login.scss' %}?version=1">
+{% endcompress %}
+<HTML>
+<head>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<head>
+  <meta charset="UTF-8">
+  <title>웹 입력 폼</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/sc.css' %}">
+</head>
+
+<body>
+  <h1>웹 입력 폼</h1>
+  <form id="quizForm" method="POST" action="{% url 'myview' %}">
+    {% csrf_token %}
+    <label for="titleInput">제92목:</label><br>
+    <input type="text" id="titleInput" name="title"><br><br>
+
+    <label for="contentInput">내용:</label><br>
+    <textarea id="contentInput" name="content" rows="4" cols="50"></textarea><br><br>
+
+    <label for="test_args">테스트 아규먼트:</label><br>
+    <input type="text" id="test_args" name="test_args"><br><br>
+
+    <label for="example_args">예제 아규먼트:</label><br>
+    <input type="text" id="example_args" name="example_args"><br><br>
+
+    <input type="submit" id="quizsub" value="퀴즈를 등록">
+  </form>
+</body>
+<script>
+  $(document).ready(function () {
+    // "퀴즈 등록" 버튼 클릭 시 폼 제출
+    $(".quizsub").submit(function (event) {
+      event.preventDefault(); // 기본 제출 동작 방지
+    
+      // 폼 데이터 가져오기
+      var formData = $(this).serialize();
+      console.log(formData)
+      console.log(Json.stringify(formData));
+      // AJAX 요청으로 폼 제출
+      $.ajax({
+        type: "POST",
+        url: $(this).attr("action"),
+        data: formData,
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        success: function (response) {
+          // 성공 처리
+          console.log(response);
+
+          // 처리 성공 시 리다이렉트 또는 다른 동작 수행
+          // 예: window.location.href = "/success"; // 성공 시 이동할 URL
+        },
+        error: function (error) {
+          // 오류 처리
+          console.error(error);
+        }
+      });
+    });
+
+    // CSRF 토큰을 쿠키에서 가져오는 함수
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        var cookies = document.cookie.split(";");
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  });
+</script>
+
+</html>

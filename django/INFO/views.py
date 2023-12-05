@@ -41,6 +41,10 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+def form(request):
+    return render(request, 'form/form.html')
+
+
 @csrf_protect
 def Insert_into_table(request):
     logger.info(request.method)
@@ -118,3 +122,36 @@ def login_view(request):
             conn.close()
     return render(request, 'login/login.html')
 
+
+# 영훈님 작업 내용
+@csrf_protect
+def myview(request):
+    if request.method == 'POST':  
+        quizName =  request.POST.get('title')
+        quizDetail =  request.POST.get('content')
+        testArgs =  request.POST.get('test_args')
+        exampleArgs =  request.POST.get('example_args')
+        # 파라미터화된 쿼리 사용
+        sql = "INSERT INTO Quiz_table (Quizname, Quizdetail, Test_argument, Example_argument, Visibility) VALUES (%s, %s, %s, %s, %s)"
+        params = (quizName, quizDetail, testArgs, exampleArgs, "1")
+
+        database_settings = settings.DATABASES
+        mysql_settings = database_settings['default']
+        NAME = mysql_settings['NAME']
+        USER =  mysql_settings['USER']
+        PASSWORD =  mysql_settings['PASSWORD']
+        HOST =  mysql_settings['HOST']
+        
+        try:
+            # 데이터베이스 삽입 진행
+            with pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8') as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, params)
+                    conn.commit()
+                return JsonResponse({'message': 'Data inserted successfully'}) 
+        except pymysql.Error as e:
+            # 예외 처리: 데이터 삽입 실패 시
+            logger.error(f'Error: {str(e)}')
+            return JsonResponse({'message': 'Database error occurred'}, status=500)
+        
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
