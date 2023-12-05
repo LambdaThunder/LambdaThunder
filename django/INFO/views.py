@@ -22,19 +22,20 @@ def login(request):
     return render(request, 'login/login.html')
 
 def list(request):
-    return render(request, 'list/list.html')
+    user_id = request.session.get('userid')
+    user_password = request.session.get('userpassword')
+    # 세션에 사용자 정보가 없으면 로그인 페이지로 리디렉션
+    if not (user_id and user_password):
+        return redirect('login')
+    return render(request, 'list/list.html', {'user_id': user_id, 'user_password': user_password})
 
 def list2(request):
     user_id = request.session.get('userid')
     user_password = request.session.get('userpassword')
-    print(user_id)
-    print(user_password)
     # 세션에 사용자 정보가 없으면 로그인 페이지로 리디렉션
     if not (user_id and user_password):
         return redirect('login')
-
     # 여기에 사용자 정보를 활용한 작업 수행
-    # ...
     return render(request, 'list/list2.html', {'user_id': user_id, 'user_password': user_password})
 
 def logout_view(request):
@@ -105,7 +106,6 @@ def login_view(request):
                 # 사용자 정보를 기반으로 세션에 저장
                 request.session['userid'] = result[2]
                 request.session['userpassword'] = result[3]
-                print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
                 return redirect('list2')
             else:
                 return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
