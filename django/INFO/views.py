@@ -16,6 +16,13 @@ def index(request):
     if not (user_id and user_password):
         return redirect('login')
     return render(request, 'INFOtemp/index.html', {'user_id': user_id, 'user_password': user_password})
+
+def codeeditor(request):
+    user_id = request.session.get('userid')
+    user_password = request.session.get('userpassword')
+    if not (user_id and user_password):
+        return redirect('login')
+    return render(request, 'INFOtemp/index.html', {'user_id': user_id, 'user_password': user_password})
     
 def login(request):
     return render(request, 'login/login.html')
