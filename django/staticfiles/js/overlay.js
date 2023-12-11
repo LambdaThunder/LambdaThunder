@@ -46,8 +46,9 @@ function getParameterByName(name) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-function setInit(){
-    var argsnum = getParameterByName('argsnum');
+function setInit(argsnumString){
+    argsnum = parseInt(argsnumString)
+
     if (argsnum < 4 && argsnum > 0) {
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);
@@ -67,7 +68,7 @@ function setInit(){
         addRow();
     }
     else {
-        //alert("불러오기 오류입니다.");
+        alert("불러오기 오류입니다.");
         var argsnum = 1
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);

@@ -4,20 +4,13 @@ import pymysql, logging
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import logout
-import json
+import json, base64
 
 # Create your views here.
 
 logger = logging.getLogger(__name__)
 
 def index(request):
-    user_id = request.session.get('userid')
-    user_password = request.session.get('userpassword')
-    if not (user_id and user_password):
-        return redirect('login')
-    return render(request, 'INFOtemp/index.html', {'user_id': user_id, 'user_password': user_password})
-
-def codeeditor(request):
     user_id = request.session.get('userid')
     user_password = request.session.get('userpassword')
     if not (user_id and user_password):
@@ -147,20 +140,48 @@ def quiz(request):
 @csrf_protect
 def get_parameter(request):
     if request.method == 'POST':
-        # Quizname, Quizdetail, Test_argument, Example_argument 의 id 값을 가진 post 값을 가져와 새 id를 할당 후 data에 저장
-        Quizname = request.POST['Quizname']
-        Quizdetail = request.POST['Quizdetail']
-        Test_argument = request.POST['Test_argument']
-        Example_argument = request.POST['Example_argument']
-        data = {
-            'Quizname': Quizname,
-            'Quizdetail': Quizdetail,
-            'Test_argument': Test_argument,
-            'Example_argument': Example_argument,
-        }
+        quiz_id = request.POST.get('Quiz_id')
 
-        # 저장된 data를 INFOtemp 경로의 index.html로 전달
-        return render(request, 'INFOtemp/index.html', data)
+        database_settings = settings.DATABASES
+        mysql_settings = database_settings['default']
+        NAME = mysql_settings['NAME']
+        USER =  mysql_settings['USER']
+        PASSWORD =  mysql_settings['PASSWORD']
+        HOST =  mysql_settings['HOST']
+
+        conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+        cursor = conn.cursor()
+
+        try:
+            # 사용자 정보 대조 쿼리
+            sql = f"SELECT Quizname, Quizdetail, Test_argument, Example_argument, argsnum, base_code FROM Quiz_table WHERE Quiz_Number = '{quiz_id}'"
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            if result:
+                Quizname = result[0]
+                Quizdetail = result[1]
+                Test_argument = result[2]
+                Example_argument = result[3]
+                argsnum = result[4]
+                base_code = result[5]
+
+                data = {
+                    'Quiz_id': quiz_id,
+                    'Quizname': Quizname,
+                    'Quizdetail': Quizdetail.replace("\n","<br>"),
+                    'Test_argument': Test_argument,
+                    'Example_argument': Example_argument,
+                    'argsnum': argsnum,
+                    'base_code': base64.b64encode(base_code.encode()).decode(),
+                }
+                return render(request, 'INFOtemp/index.html', data)
+            else:
+                pass
+        except Exception as e:
+            logger.error(f"Error connecting to RDS: {str(e)}")
+        finally:
+            conn.close()
+    return render(request, 'INFOtemp/index.html')
 
 @csrf_protect
 def myview(request):
@@ -173,7 +194,7 @@ def myview(request):
 
         testargsnum = json.loads(testArgs)
         exampleargsnum = json.loads(exampleArgs)
-        if len(testargsnum) == 10 and len(exampleargsnum[0]) == 3 :
+        if len(testargsnum) == 5 and len(exampleargsnum) == 2 :
 
             if len(testargsnum[0]) == len(exampleargsnum[0]) :
                 argsnum = len(testargsnum[0])

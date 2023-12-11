@@ -10,7 +10,10 @@
   <script src="{% static 'lib/min/vs/loader.js' %}?version=3"></script>
   <script src="{% static 'js/overlay.js' %}?version=3"></script>
   <script>
-    window.onload = setInit;
+    window.onload = function() {
+      setInit("{{ argsnum }}");
+      console.log("{{ argsnum }}");
+    };
 
     const currentProtocol = window.location.protocol;
 
@@ -27,7 +30,7 @@
 
     require(["vs/editor/editor.main"], () => {
       var editor = monaco.editor.create(document.getElementById('container'), {
-        value: `def main(a):\n\tprint(a*5)\n\treturn a*2`,
+        value: atob('{{base_code}}'),
         language: 'python',
         theme: 'vs-dark',
         scrollBeyondLastLine: false,
@@ -77,7 +80,8 @@
 
   <!-- Middle Bar -->
   <div class="bar1" id="MiddleBar1">
-  <button class="custom-btn btn-12" onclick="goToList()"><span>Click!</span><span>이전페이지로 돌아가기</span></button>
+    <p>{{ Quizname }}</p>
+    <button class="custom-btn btn-12" onclick="goToList()"><span>Click!</span><span>이전 페이지로</span></button>
   </div>
   <!-- End of Middle Bar -->
 
@@ -119,14 +123,7 @@
     <div class="grid"  id="resizableGrid">
       <div class="item merged">
         <p class="text">
-
-          제목 = {{ Quizname }}<br /> <!-- Quizname 값 호출 -->
-          문제 = {{ Quizdetail }}<br /> <!-- Quizdetail 값 호출 -->
-          제목 = {{ Test_argument }}<br /> <!-- Test_argument 값 호출 -->
-          문제 = {{ Example_argument }}<br /> <!-- Example_argument 값 호출 -->
-          <a href="/list/">메인페이지</a><br /> <!-- 메인페이지로 돌아가는 href문 -->
-
-          아에이오우<br>
+          {{ Quizdetail|safe }}
         </p>
       </div>
       <div class="code">

@@ -36,15 +36,12 @@
       <!-- quiz_data의 수 만큼 item 값을 증가 -->
       {% for item in quiz_data %}
         <li>
-            <form id="contents" name="contents" method="post" action="{% url 'parameter' %}">	<!-- contents에 저장된 send 값을 post 방식으로 parameter 함수를 통해 전송 -->
+            <form id="contents{{item.0}}" name="contents" method="post" action="{% url 'parameter' %}">	<!-- contents에 저장된 send 값을 post 방식으로 parameter 함수를 통해 전송 -->
                 {% csrf_token %}
                 <!-- contents에 1대1 대응 되는 각 값을 기입하여 전송 -->
-                <input type="hidden" id="Quizname" name="Quizname" value="">
-                <input type="hidden" id="Quizdetail" name="Quizdetail" value="">
-                <input type="hidden" id="Test_argument" name="Test_argument" value="">
-                <input type="hidden" id="Example_argument" name="Example_argument" value="">
-                <!-- 각 테이블의 1번 필드(Quizname), 2번 필드(Quizdetail), 3번 필드(Test_argument), 4번 필드(Example_argument) 값을 item 순번대로 불러와 send 함수에 적용 -->
-                <a href="#" onclick="send('{{ item.1 }}', '{{ item.2 }}', '{{ item.3 }}', '{{ item.4 }}');"><font size="50"><center>{{ item.1 }}</center></font></a>
+                <input type="hidden" id="Quiz_id" name="Quiz_id" value="{{ item.0 }}">
+                
+                <a href="#" onclick="send('{{ item.0 }}');"><font size="50"><center>{{ item.1 }}</center></font></a>
                 <!-- 각 테이블의 1번 필드(Quizname)을 item 수 만큼 제목 페이지 생성 그 후 parameter 함수의 도착 지점으로 가는 링크 생성 -->
             </form>
         </li>
@@ -126,12 +123,10 @@
       generatePagination(1);
     });
 
-    function send(Quizname, Quizdetail, Test_argument, Example_argument) {
-        document.getElementById("Quizname").value = Quizname;
-        document.getElementById("Quizdetail").value = Quizdetail;
-        document.getElementById("Test_argument").value = Test_argument;
-        document.getElementById("Example_argument").value = Example_argument;
-        document.getElementById("contents").submit();
+    function send(id) {
+        document.getElementById("Quiz_id").value = id;
+        localStorage.setItem("log", document.getElementById("Quiz_id").value)
+        document.getElementById("contents" + id).submit();
     }
   </script>
 
