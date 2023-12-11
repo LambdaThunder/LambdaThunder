@@ -64,6 +64,11 @@
     function goToList2() {
         window.location.href = "{% url 'list2' %}";
     }
+
+        function goToList3() {
+        window.location.href = "{% url 'quiz' %}";
+    }
+
 </script>
 
 </head>
@@ -77,7 +82,8 @@
 
   <!-- Middle Bar -->
   <div class="bar1" id="MiddleBar1">
-  <button class="custom-btn btn-12" onclick="goToList2()"><span>Click!</span><span>이전페이지로 돌아가기</span></button>
+  <button class="custom-btn btn-12" onclick="goToList3()"><span>Click!</span><span>문제목록 돌아가기</span></button>
+  <button class="custom-btn btn-12" onclick="goToList2()"><span>Click!</span><span>메뉴로 돌아가기</span></button>
   </div>
   <!-- End of Middle Bar -->
 
@@ -108,12 +114,7 @@
     <span></span>
     닫기
   </a>
-  {% comment %} <button class="close-btn" onclick="closeOverlay()">닫기</button> {% endcomment %}
 </div>
-        {% comment %} <button onclick="addRow()">행 추가</button>
-        <button class="close-btn" onclick="closeOverlay()">
-          닫기
-        </button> {% endcomment %}
       </p>
     </div>
   </div>

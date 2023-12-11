@@ -21,6 +21,9 @@ def index(request):
 def login(request):
     return render(request, 'login/login.html')
 
+def alert(request):
+    return render(request, 'login/alert.html')
+
 def list(request):
     user_id = request.session.get('userid')
     user_password = request.session.get('userpassword')
@@ -104,13 +107,15 @@ def login_view(request):
             sql = f"SELECT * FROM User_table WHERE ID = '{user_id}' AND Password = password('{password}')"
             cursor.execute(sql)
             result = cursor.fetchone()
+            
 #---------기존코드 있던자리
-            if result:
+            if result:   #-----보안상 세션값 바꾸고 싶다면 밑 request.session['token'] = result[5]  이걸로 바꿔주기. 위쪽 세션정보 가져오는곳도 바꿔줘야함
                 request.session['userid'] = result[2]
                 request.session['userpassword'] = result[3]
                 return redirect('list2')
             else:
-                return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
+                # return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
+                return render(request, 'login/alert.html')
         except Exception as e:
             # 예외 처리
             logger.error(f"Error connecting to RDS: {str(e)}")

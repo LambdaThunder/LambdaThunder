@@ -15,5 +15,6 @@ urlpatterns = [
     path('index', views.get_parameter, name='parameter'), # get_parameter 함수 선언, parameter 로 호출하고 index 로 내보냄
     path('form/', views.form, name="form"),
     path('myview/', views.myview, name='myview'),
+    path('alert/', views.myview, name='alert'),
 ]
 
