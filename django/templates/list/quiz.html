@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>문제목록</title>
+  <style>
+    .pagination {
+      display: flex;
+      list-style: none;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .pagination li {
+      margin: 0 5px;
+    }
+
+    .pagination a {
+      text-decoration: none;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      color: #333;
+    }
+
+    .pagination a:hover {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="content">
+    <ul id="itemList">
+      <!-- quiz_data의 수 만큼 item 값을 증가 -->
+      {% for item in quiz_data %}
+        <li>
+            <form id="contents" name="contents" method="post" action="{% url 'parameter' %}">	<!-- contents에 저장된 send 값을 post 방식으로 parameter 함수를 통해 전송 -->
+                {% csrf_token %}
+                <!-- contents에 1대1 대응 되는 각 값을 기입하여 전송 -->
+                <input type="hidden" id="Quizname" name="Quizname" value="">
+                <input type="hidden" id="Quizdetail" name="Quizdetail" value="">
+                <input type="hidden" id="Test_argument" name="Test_argument" value="">
+                <input type="hidden" id="Example_argument" name="Example_argument" value="">
+                <!-- 각 테이블의 1번 필드(Quizname), 2번 필드(Quizdetail), 3번 필드(Test_argument), 4번 필드(Example_argument) 값을 item 순번대로 불러와 send 함수에 적용 -->
+                <a href="#" onclick="send('{{ item.1 }}', '{{ item.2 }}', '{{ item.3 }}', '{{ item.4 }}');"><font size="50"><center>{{ item.1 }}</center></font></a>
+                <!-- 각 테이블의 1번 필드(Quizname)을 item 수 만큼 제목 페이지 생성 그 후 parameter 함수의 도착 지점으로 가는 링크 생성 -->
+            </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <ul class="pagination" id="pagination"></ul>
+
+  <script>
+
+    // 페이지네이션 부분
+    document.addEventListener("DOMContentLoaded", function () {
+      const content = document.getElementById("content");
+      const itemList = document.getElementById("itemList");
+      const itemsPerPage = 10; // 한 페이지에 띄울 글의 갯수 10개 설정
+      const totalItems = {{ quiz_data|length }}; // Quiz_table의 총합 글의 갯수
+      const totalPages = Math.ceil(totalItems / itemsPerPage); // 만들 페이지의 갯수, 총합 글 갯수를 띄을 글 갯수로 나눔
+
+      function showPage(page) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        const items = itemList.children;
+
+        for (let i = 0; i < items.length; i++) {
+          items[i].style.display = i >= startIndex && i < endIndex ? "block" : "none";
+        }
+      }
+
+      function generatePagination(currentPage) {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = ""; // Clear previous pagination
+
+        const startPage = Math.max(1, currentPage - 5); // 시작 페이지 수 설정
+        const endPage = Math.min(totalPages, startPage + 9); // 끝 페이지 수 설정
+
+        // startPage 부터 endPage까지 증가
+        for (let i = startPage; i <= endPage; i++) {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#";
+          a.textContent = i;
+          a.addEventListener("click", function () {
+            showPage(i);
+          });
+          li.appendChild(a);
+          pagination.appendChild(li);
+        }
+
+        // 이전페이지 버튼 생성
+        if (startPage > 1) {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#";
+          a.textContent = "이전페이지";
+          a.addEventListener("click", function () {
+            generatePagination(startPage - 1);
+          });
+          li.appendChild(a);
+          pagination.insertBefore(li, pagination.firstChild);
+        }
+
+        // 다음페이지 버튼 생성
+        if (endPage < totalPages) {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#";
+          a.textContent = "다음페이지";
+          a.addEventListener("click", function () {
+            generatePagination(endPage + 1);
+          });
+          li.appendChild(a);
+          pagination.appendChild(li);
+        }
+      }
+
+      showPage(1);
+      generatePagination(1);
+    });
+
+    function send(Quizname, Quizdetail, Test_argument, Example_argument) {
+        document.getElementById("Quizname").value = Quizname;
+        document.getElementById("Quizdetail").value = Quizdetail;
+        document.getElementById("Test_argument").value = Test_argument;
+        document.getElementById("Example_argument").value = Example_argument;
+        document.getElementById("contents").submit();
+    }
+  </script>
+
+</body>
+</html>

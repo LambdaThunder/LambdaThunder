@@ -118,3 +118,48 @@ def login_view(request):
             conn.close()
     return render(request, 'login/login.html')
 
+#리스트 용 추가 함수
+
+# mysql 에서 테이블 값을 가져오는 함수
+@csrf_protect
+def quiz(request):
+    
+    # mysql 접속 변수 선언
+    database_settings = settings.DATABASES
+    mysql_settings = database_settings['default']
+    NAME = mysql_settings['NAME']
+    USER = mysql_settings['USER']
+    PASSWORD = mysql_settings['PASSWORD']
+    HOST = mysql_settings['HOST']
+    
+    connection1 = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+    cursor = connection1.cursor()
+
+    try:
+            # Quiz_table에서 데이터 가져오기
+            sql1 = "SELECT * FROM Quiz_table"
+            cursor.execute(sql1) 
+            quiz_data = cursor.fetchall()
+    finally:
+        connection1.close()
+
+    return render(request, 'list/quiz.html', {'quiz_data': quiz_data}) # Quiz_table의 데이터 값을 list 경로의 quiz.html에 quiz_data 란 이름으로 전달
+
+# post 형식으로 받은 데이터를 index.html로 보내는 함수
+@csrf_protect
+def get_parameter(request):
+    if request.method == 'POST':
+        # Quizname, Quizdetail, Test_argument, Example_argument 의 id 값을 가진 post 값을 가져와 새 id를 할당 후 data에 저장
+        Quizname = request.POST['Quizname']
+        Quizdetail = request.POST['Quizdetail']
+        Test_argument = request.POST['Test_argument']
+        Example_argument = request.POST['Example_argument']
+        data = {
+            'Quizname': Quizname,
+            'Quizdetail': Quizdetail,
+            'Test_argument': Test_argument,
+            'Example_argument': Example_argument,
+        }
+
+        # 저장된 data를 INFOtemp 경로의 index.html로 전달
+        return render(request, 'INFOtemp/index.html', data)
