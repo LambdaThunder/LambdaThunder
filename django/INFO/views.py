@@ -15,7 +15,6 @@ def index(request):
     user_password = request.session.get('userpassword')
     if not (user_id and user_password):
         return redirect('login')
-    #return render(request, 'INFOtemp/index.html')
     return render(request, 'INFOtemp/index.html', {'user_id': user_id, 'user_password': user_password})
     
 def login(request):
@@ -27,16 +26,8 @@ def list(request):
     # 세션에 사용자 정보가 없으면 로그인 페이지로 리디렉션
     if not (user_id and user_password):
         return redirect('login')
-    return render(request, 'list/list.html', {'user_id': user_id, 'user_password': user_password})
-
-def list2(request):
-    user_id = request.session.get('userid')
-    user_password = request.session.get('userpassword')
-    # 세션에 사용자 정보가 없으면 로그인 페이지로 리디렉션
-    if not (user_id and user_password):
-        return redirect('login')
     # 여기에 사용자 정보를 활용한 작업 수행
-    return render(request, 'list/list2.html', {'user_id': user_id, 'user_password': user_password})
+    return render(request, 'list/list.html', {'user_id': user_id, 'user_password': user_password})
 
 def logout_view(request):
     logout(request)
@@ -44,7 +35,6 @@ def logout_view(request):
 
 def form(request):
     return render(request, 'form/form.html')
-
 
 @csrf_protect
 def Insert_into_table(request):
@@ -58,8 +48,8 @@ def Insert_into_table(request):
         logger.info(f"Received data - Nickname: {nickname}, ID: {user_id}")
 
         # 파라미터화된 쿼리 사용
-        sql = "INSERT INTO User_table (Nickname, ID, Password) VALUES (%s, %s, password(%s))"
-        params = (nickname, user_id, passwd)
+        sql = "INSERT INTO User_table (Nickname, ID, Password, token) VALUES (%s, %s, password(%s), password(%s))"
+        params = (nickname, user_id, passwd, user_id)
 
         database_settings = settings.DATABASES
         mysql_settings = database_settings['default']
@@ -104,11 +94,10 @@ def login_view(request):
             sql = f"SELECT * FROM User_table WHERE ID = '{user_id}' AND Password = password('{password}')"
             cursor.execute(sql)
             result = cursor.fetchone()
-#---------기존코드 있던자리
             if result:
                 request.session['userid'] = result[2]
                 request.session['userpassword'] = result[3]
-                return redirect('list2')
+                return redirect('list')
             else:
                 return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
         except Exception as e:
@@ -206,8 +195,8 @@ def myview(request):
                     logger.error(f'Error: {str(e)}')
                     return JsonResponse({'message': 'Database error occurred'}, status=500)
             else:
-                returnJsonResponse({'error': 'argsnum Error'}, status=400)
+                return JsonResponse({'error': 'argsnum Error'}, status=400)
         else :
-            returnJsonResponse({'error': 'Error there need 10 Test and 3 Exam'}, status=400)
+            return JsonResponse({'error': 'Error there need 10 Test and 3 Exam'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
