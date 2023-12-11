@@ -173,29 +173,41 @@ def myview(request):
         quizDetail = request.POST.get('content')
         testArgs = request.POST.get('test_args')
         exampleArgs = request.POST.get('example_args')
+        base_code = request.POST.get('base_code')
 
-        # 파라미터화된 쿼리 사용
-        sql = "INSERT INTO Quiz_table (Quizname, Quizdetail, Test_argument, Example_argument, Visibility) VALUES (%s, %s, %s, %s, %s)"
-        
-        # 데이터를 튜플로 묶어서 전달
-        params = (quizName, quizDetail, testArgs, exampleArgs, "1")
-        database_settings = settings.DATABASES
-        mysql_settings = database_settings['default']
-        NAME = mysql_settings['NAME']
-        USER = mysql_settings['USER']
-        PASSWORD = mysql_settings['PASSWORD']
-        HOST = mysql_settings['HOST']
+        testargsnum = json.loads(testArgs)
+        exampleargsnum = json.loads(exampleArgs)
+        if len(testargsnum) == 10 and len(exampleargsnum[0]) == 3 :
 
-        try:
-            # 데이터베이스 삽입 진행
-            with pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8') as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(sql, params)
-                    conn.commit()
-                return JsonResponse({'message': 'Data inserted successfully'}) 
-        except pymysql.Error as e:
-            # 예외 처리: 데이터 삽입 실패 시
-            logger.error(f'Error: {str(e)}')
-            return JsonResponse({'message': 'Database error occurred'}, status=500)
+            if len(testargsnum[0]) == len(exampleargsnum[0]) :
+                argsnum = len(testargsnum[0])
+
+                # 파라미터화된 쿼리 사용
+                sql = "INSERT INTO Quiz_table (Quizname, Quizdetail, Test_argument, Example_argument, Visibility, argsnum, base_code) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                
+                # 데이터를 튜플로 묶어서 전달
+                params = (quizName, quizDetail, testArgs, exampleArgs, "1", argsnum, base_code)
+                database_settings = settings.DATABASES
+                mysql_settings = database_settings['default']
+                NAME = mysql_settings['NAME']
+                USER = mysql_settings['USER']
+                PASSWORD = mysql_settings['PASSWORD']
+                HOST = mysql_settings['HOST']
+
+                try:
+                    # 데이터베이스 삽입 진행
+                    with pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8') as conn:
+                        with conn.cursor() as cursor:
+                            cursor.execute(sql, params)
+                            conn.commit()
+                        return JsonResponse({'message': 'Data inserted successfully'}) 
+                except pymysql.Error as e:
+                    # 예외 처리: 데이터 삽입 실패 시
+                    logger.error(f'Error: {str(e)}')
+                    return JsonResponse({'message': 'Database error occurred'}, status=500)
+            else:
+                returnJsonResponse({'error': 'argsnum Error'}, status=400)
+        else :
+            returnJsonResponse({'error': 'Error there need 10 Test and 3 Exam'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)

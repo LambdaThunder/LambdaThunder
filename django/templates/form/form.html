@@ -27,7 +27,6 @@
 <body>
   <h1>웹 입력 폼</h1>
 
-
   <form id="quizForm" method="POST" action="{% url 'myview' %}">
     {% csrf_token %}
     <label for="titleInput">제목:</label><br>
@@ -36,130 +35,87 @@
     <label for="contentInput">내용:</label><br>
     <textarea id="contentInput" name="content" rows="4" cols="50"></textarea><br><br>
 
+    <label for="base_code_input">베이스 코드:</label><br>
+    <textarea id="base_code_input" name="base_code" rows="4" cols="50"></textarea><br><br>
+
     <fieldset>
       <legend>테스트 아규먼트:</legend>
       <input type="text" id="test_args" name="test_args"><br><br>
       <table id="test_args_table">
           <tbody>
-              <!-- 이 부분은 자바스크립트로 동적으로 생성될 것입니다 -->
           </tbody>
       </table>
-      <!-- outputTest 부분 삭제 -->
   </fieldset>
 
   <fieldset>
       <legend>예제 아규먼트:</legend>
-      <input type="text" id="example_args" name="example_args"><br><br>
-      <table id="args_table">
+      <input type="text" id="exam_args" name="example_args"><br><br>
+      <table id="exam_args_table">
           <tbody>
-              <!-- 이 부분은 자바스크립트로 동적으로 생성될 것입니다 -->
           </tbody>
       </table>
-      <!-- outputExample 부분 삭제 -->
   </fieldset>
 
   <input type="submit" id="quizsub" value="퀴즈를 등록">
 </form>
 
 <script>
-  const testArgsTable = document.getElementById('test_args_table');
-  const argsTable = document.getElementById('args_table');
+  document.addEventListener('DOMContentLoaded', function() {
+    var newContent = 'def main():\n\tanswer=0\n\treturn answer';
 
-  // 테스트 아규먼트 생성
-  const testRows = 10;
-  const testCols = 5;
+    var textarea = document.getElementById('base_code_input');
 
-  for (let i = 0; i < testRows; i++) {
-      const row = document.createElement('tr');
+    textarea.value = newContent + textarea.value;
+  });
 
-      for (let j = 0; j < testCols; j++) {
-          const cell = document.createElement('td');
-          const input = document.createElement('input');
-          
-          input.type = 'text';
-          input.name = `test_arg_${i}_${j}`;
 
-          input.addEventListener('input', updateOutputTest);
+  createTable(10,5,"test_args");
+  createTable(3,5,"exam_args");
 
-          cell.appendChild(input);
-          row.appendChild(cell);
-      }
-
-      testArgsTable.querySelector('tbody').appendChild(row);
-  }
-
-  function updateOutputTest() {
-      const inputs = document.querySelectorAll('#test_args_table input');
-      const valuesArray = [];
-      let rowArray = [];
-
-      inputs.forEach((input, index) => {
-          if (input.value != "") { // 입력된 값이 비어있지 않은 경우에만 처리합니다.
-              rowArray.push(input.value);
-
-              if ((index + 1) % testCols === 0) {
-                  valuesArray.push(rowArray);
-                  rowArray = [];
-              }
-          }
-      });
-
-      const testArgsInput = document.getElementById('test_args');
-      testArgsInput.value = JSON.stringify(valuesArray);
-  }
-
-  // 예제 아규먼트 생성
-  const rows = 3;
-  const cols = 5;
-
-  for (let i = 0; i < rows; i++) {
+  function createTable(rows, cols, table_id) {
+    const table = document.getElementById(table_id+"_table");
+    for (let i = 0; i < rows; i++) {
       const row = document.createElement('tr');
 
       for (let j = 0; j < cols; j++) {
           const cell = document.createElement('td');
           const input = document.createElement('input');
+          
+          input.type = 'text';
+          input.name = table_id + `_${i}_${j}`;
 
-          if (j === cols - 1) {
-              input.type = 'text';
-              input.name = 'answer';
-          } else {
-              input.type = 'text';
-              input.name = `arg${j + 1}`;
-          }
-
-          input.addEventListener('input', updateOutput);
+          input.addEventListener('input', ()=>{updateOutput(table_id, cols)});
 
           cell.appendChild(input);
           row.appendChild(cell);
       }
 
-      argsTable.querySelector('tbody').appendChild(row);
+      table.querySelector('tbody').appendChild(row);
+    }
   }
 
-  function updateOutput() {
-      const inputs = document.querySelectorAll('#args_table input');
-      const valuesArray = [];
-      let rowArray = [];
+  function updateOutput(tableid, cols) {
+    const inputs = document.querySelectorAll('#' + tableid + "_table" + ' input');
+    const valuesArray = [];
+    let rowArray = [];
 
-      for (let i = 0; i < inputs.length; i++) {
-          const input = inputs[i];
-          if (input.value != "") {
-              rowArray.push(input.value);
-          }
+    for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
+        if (input.value != "") {
+            rowArray.push(input.value);
+        }
 
-          // 현재 행에 값이 추가되었고, 다음 열이 없는 경우에만 행을 배열에 추가합니다.
-          if ((i + 1) % cols === 0 && rowArray.length > 0) {
-              valuesArray.push(rowArray);
-              rowArray = [];
-          }
-      }
+        // 현재 행에 값이 추가되었고, 다음 열이 없는 경우에만 행을 배열에 추가합니다.
+        if ((i + 1) % cols === 0 && rowArray.length > 0) {
+            valuesArray.push(rowArray);
+            rowArray = [];
+        }
+    }
 
-      const exampleArgsInput = document.getElementById('example_args');
-      var tmp = "[[" + valuesArray.join("],[") + "]]";
-      exampleArgsInput.value = tmp;//JSON.stringify();
+    const ArgsInput = document.getElementById(tableid);
+    var tmp = "[[" + valuesArray.join("],[") + "]]";
+    ArgsInput.value = tmp;
   }
-</script>
-<script>
   $(document).ready(function () {
     // "퀴즈 등록" 버튼 클릭 시 폼 제출
     $(".quizsub").submit(function (event) {
