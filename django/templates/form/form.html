@@ -1,9 +1,10 @@
 {% load compress %}
 {% load static %}
 {% compress css %}
-<link rel="stylesheet" type="text/x-scss" href="{% static 'css/login.scss' %}?version=1">
+<link rel="stylesheet" type="text/x-scss" href="{% static 'css/sc.css' %}?version=1">
 {% endcompress %}
 <HTML>
+
 <head>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
@@ -12,37 +13,162 @@
   <meta charset="UTF-8">
   <title>웹 입력 폼</title>
   <link rel="stylesheet" type="text/css" href="{% static 'css/sc.css' %}">
+  <style>
+    .output-box {
+      background-color: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      overflow-wrap: break-word;
+    }
+  </style>
 </head>
 
 <body>
   <h1>웹 입력 폼</h1>
+
+
   <form id="quizForm" method="POST" action="{% url 'myview' %}">
     {% csrf_token %}
-    <label for="titleInput">제92목:</label><br>
+    <label for="titleInput">제목:</label><br>
     <input type="text" id="titleInput" name="title"><br><br>
 
     <label for="contentInput">내용:</label><br>
     <textarea id="contentInput" name="content" rows="4" cols="50"></textarea><br><br>
 
-    <label for="test_args">테스트 아규먼트:</label><br>
-    <input type="text" id="test_args" name="test_args"><br><br>
+    <fieldset>
+      <legend>테스트 아규먼트:</legend>
+      <input type="text" id="test_args" name="test_args"><br><br>
+      <table id="test_args_table">
+          <tbody>
+              <!-- 이 부분은 자바스크립트로 동적으로 생성될 것입니다 -->
+          </tbody>
+      </table>
+      <!-- outputTest 부분 삭제 -->
+  </fieldset>
 
-    <label for="example_args">예제 아규먼트:</label><br>
-    <input type="text" id="example_args" name="example_args"><br><br>
+  <fieldset>
+      <legend>예제 아규먼트:</legend>
+      <input type="text" id="example_args" name="example_args"><br><br>
+      <table id="args_table">
+          <tbody>
+              <!-- 이 부분은 자바스크립트로 동적으로 생성될 것입니다 -->
+          </tbody>
+      </table>
+      <!-- outputExample 부분 삭제 -->
+  </fieldset>
 
-    <input type="submit" id="quizsub" value="퀴즈를 등록">
-  </form>
-</body>
+  <input type="submit" id="quizsub" value="퀴즈를 등록">
+</form>
+
+<script>
+  const testArgsTable = document.getElementById('test_args_table');
+  const argsTable = document.getElementById('args_table');
+
+  // 테스트 아규먼트 생성
+  const testRows = 10;
+  const testCols = 5;
+
+  for (let i = 0; i < testRows; i++) {
+      const row = document.createElement('tr');
+
+      for (let j = 0; j < testCols; j++) {
+          const cell = document.createElement('td');
+          const input = document.createElement('input');
+          
+          input.type = 'text';
+          input.name = `test_arg_${i}_${j}`;
+
+          input.addEventListener('input', updateOutputTest);
+
+          cell.appendChild(input);
+          row.appendChild(cell);
+      }
+
+      testArgsTable.querySelector('tbody').appendChild(row);
+  }
+
+  function updateOutputTest() {
+      const inputs = document.querySelectorAll('#test_args_table input');
+      const valuesArray = [];
+      let rowArray = [];
+
+      inputs.forEach((input, index) => {
+          if (input.value != "") { // 입력된 값이 비어있지 않은 경우에만 처리합니다.
+              rowArray.push(input.value);
+
+              if ((index + 1) % testCols === 0) {
+                  valuesArray.push(rowArray);
+                  rowArray = [];
+              }
+          }
+      });
+
+      const testArgsInput = document.getElementById('test_args');
+      testArgsInput.value = JSON.stringify(valuesArray);
+  }
+
+  // 예제 아규먼트 생성
+  const rows = 3;
+  const cols = 5;
+
+  for (let i = 0; i < rows; i++) {
+      const row = document.createElement('tr');
+
+      for (let j = 0; j < cols; j++) {
+          const cell = document.createElement('td');
+          const input = document.createElement('input');
+
+          if (j === cols - 1) {
+              input.type = 'text';
+              input.name = 'answer';
+          } else {
+              input.type = 'text';
+              input.name = `arg${j + 1}`;
+          }
+
+          input.addEventListener('input', updateOutput);
+
+          cell.appendChild(input);
+          row.appendChild(cell);
+      }
+
+      argsTable.querySelector('tbody').appendChild(row);
+  }
+
+  function updateOutput() {
+      const inputs = document.querySelectorAll('#args_table input');
+      const valuesArray = [];
+      let rowArray = [];
+
+      for (let i = 0; i < inputs.length; i++) {
+          const input = inputs[i];
+          if (input.value != "") {
+              rowArray.push(input.value);
+          }
+
+          // 현재 행에 값이 추가되었고, 다음 열이 없는 경우에만 행을 배열에 추가합니다.
+          if ((i + 1) % cols === 0 && rowArray.length > 0) {
+              valuesArray.push(rowArray);
+              rowArray = [];
+          }
+      }
+
+      const exampleArgsInput = document.getElementById('example_args');
+      var tmp = "[[" + valuesArray.join("],[") + "]]";
+      exampleArgsInput.value = tmp;//JSON.stringify();
+  }
+</script>
 <script>
   $(document).ready(function () {
     // "퀴즈 등록" 버튼 클릭 시 폼 제출
     $(".quizsub").submit(function (event) {
       event.preventDefault(); // 기본 제출 동작 방지
-    
+
       // 폼 데이터 가져오기
       var formData = $(this).serialize();
       console.log(formData)
-      console.log(Json.stringify(formData));
+      console.log(JSon.stringify(formData));
       // AJAX 요청으로 폼 제출
       $.ajax({
         type: "POST",
