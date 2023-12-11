@@ -4,7 +4,7 @@ import pymysql, logging
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import logout
-
+import json
 
 # Create your views here.
 
