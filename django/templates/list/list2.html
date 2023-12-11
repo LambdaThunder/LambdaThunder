@@ -5,22 +5,15 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" type="text/css" href="{% static 'css/list2.css' %}">	
+  <link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}">
 </head>
 <body>
 
 <div>
-
-	<div>
-		<p>
-			Your browser does not support symbols as a list-style type.
-		</p>
-	</div>
-
-	<h1>람다썬더_lambdathunder</h1>
-	<h2><a href="{% url 'index' %}">코드작성페이지</a></h2>
-	<h2><a href="{% url 'quiz' %}">문제목록</a></h2> <!-- 퀴즈 리스트 페이지로 이동 -->
-	<h2><a href="{% url 'logout' %}">로그아웃</a></h2>
-
+	<h1>람다썬더_Lambdathunder</h1>
+	<h2><a href="{% url 'logout' %}"><button class="button-85" role="button"></button>로그아웃</button></a></h2>
+	<h2><a href="{% url 'quiz' %}"><button class="button-85" role="button"></button>문제목록</button></a></h2> <!-- 퀴즈 리스트 페이지로 이동 -->
+	<h2><a href="{% url 'index' %}"><button class="button-85" role="button"></button>코드작성페이지</button></a></h2>
 </div>
 </body>
 </html>

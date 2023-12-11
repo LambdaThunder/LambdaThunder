@@ -2,10 +2,13 @@
 <!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=2">
-  
-  <script src="{% static 'lib/min/vs/loader.js' %}?version=2"></script>
-  <script src="{% static 'js/overlay.js' %}?version=2"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=3">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/overlay.css' %}?version=3">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}?version=3">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap">
+
+  <script src="{% static 'lib/min/vs/loader.js' %}?version=3"></script>
+  <script src="{% static 'js/overlay.js' %}?version=3"></script>
   <script>
     window.onload = setInit;
 
@@ -51,16 +54,30 @@
       const rt = document.getElementById('return');
       rt.innerHTML = show_json(receivedMessage);
     };
+
+    function goBack() {
+        window.history.back();
+    };
   </script>
+
+<script>
+    function goToList2() {
+        window.location.href = "{% url 'list2' %}";
+    }
+</script>
+
 </head>
 <body>
   <!-- Top Bar -->
-  <div class="bar" id="TopBar">
+   <div class="bar1" id="TopBar1">
+    <p class="description">Code editor_Lambda-thunder</p>
   </div>
+
   <!-- End of Top Bar -->
 
   <!-- Middle Bar -->
-  <div class="bar" id="MiddleBar">
+  <div class="bar1" id="MiddleBar1">
+  <button class="custom-btn btn-12" onclick="goToList2()"><span>Click!</span><span>이전페이지로 돌아가기</span></button>
   </div>
   <!-- End of Middle Bar -->
 
@@ -76,10 +93,27 @@
         </table>
       </div>
       <p>
-        <button onclick="addRow()">행 추가</button>
+      <div class="container">
+  <a class="button" href="#" style="--color:#1e9bff;" onclick="addRow()">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    행추가
+  </a>
+  <a class="close-btn button" href="#" style="--color: #ff1867;" onclick="closeOverlay()">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    닫기
+  </a>
+  {% comment %} <button class="close-btn" onclick="closeOverlay()">닫기</button> {% endcomment %}
+</div>
+        {% comment %} <button onclick="addRow()">행 추가</button>
         <button class="close-btn" onclick="closeOverlay()">
           닫기
-        </button>
+        </button> {% endcomment %}
       </p>
     </div>
   </div>
@@ -110,12 +144,12 @@
   <!-- End of Grid Area -->
 
   <!-- Under Bar -->
-  <div class="bar under">
-    <button onclick="logEditorValue()" id="submit">
-      제출하기
+  <div class="bar1 under1" id="UnderBar1">
+    <button class="custom-btn btn-12" onclick="logEditorValue()" id="submit">
+      <span>Click!</span><span>제출하기</span>
     </button>
-    <button onclick="openOverlay()">
-      오버레이 열기
+    <button class="custom-btn btn-12" onclick="openOverlay()">
+      <span>Click!</span><span>오버레이 열기</span>
     </button>
   </div>
   <!-- End of Under Bar -->
