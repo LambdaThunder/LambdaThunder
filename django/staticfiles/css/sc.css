@@ -1,0 +1,49 @@
+body {
+    background-color: #f0fff0; /* 연한 초록색 배경 */
+    color: #333333; /* 어두운 글자색 */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 기본 폰트 변경 */
+    margin: 20px;
+  }
+  
+  h1 {
+    color: #008000; /* 진한 초록색 헤더 */
+    margin-bottom: 20px;
+  }
+  
+  form {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    color: #008000; /* 진한 초록색 라벨 텍스트 */
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  textarea {
+    background-color: #f5fffa; /* 연한 초록색 입력 필드 배경 */
+    color: #333333;
+    border: 1px solid #008000; /* 초록색 테두리 */
+    padding: 8px;
+    margin-bottom: 10px;
+    width: calc(100% - 16px);
+  }
+  
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #32cd32; /* 밝은 초록색 포커스 테두리 */
+  }
+  
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  th, td {
+    border: 1px solid #008000;
+    padding: 8px;
+    text-align: left;
+  }

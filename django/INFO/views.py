@@ -4,7 +4,7 @@ import pymysql, logging
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import logout
-
+import json
 
 # Create your views here.
 
@@ -41,6 +41,10 @@ def list2(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def form(request):
+    return render(request, 'form/form.html')
+
 
 @csrf_protect
 def Insert_into_table(request):
@@ -102,8 +106,6 @@ def login_view(request):
             result = cursor.fetchone()
 #---------기존코드 있던자리
             if result:
-                print(result)
-                # 사용자 정보를 기반으로 세션에 저장
                 request.session['userid'] = result[2]
                 request.session['userpassword'] = result[3]
                 return redirect('list2')
@@ -136,10 +138,10 @@ def quiz(request):
     cursor = connection1.cursor()
 
     try:
-            # Quiz_table에서 데이터 가져오기
-            sql1 = "SELECT * FROM Quiz_table"
-            cursor.execute(sql1) 
-            quiz_data = cursor.fetchall()
+        # Quiz_table에서 데이터 가져오기
+        sql1 = "SELECT * FROM Quiz_table"
+        cursor.execute(sql1) 
+        quiz_data = cursor.fetchall()
     finally:
         connection1.close()
 
@@ -163,3 +165,37 @@ def get_parameter(request):
 
         # 저장된 data를 INFOtemp 경로의 index.html로 전달
         return render(request, 'INFOtemp/index.html', data)
+
+@csrf_protect
+def myview(request):
+    if request.method == 'POST':  
+        quizName = request.POST.get('title')
+        quizDetail = request.POST.get('content')
+        testArgs = request.POST.get('test_args')
+        exampleArgs = request.POST.get('example_args')
+
+        # 파라미터화된 쿼리 사용
+        sql = "INSERT INTO Quiz_table (Quizname, Quizdetail, Test_argument, Example_argument, Visibility) VALUES (%s, %s, %s, %s, %s)"
+        
+        # 데이터를 튜플로 묶어서 전달
+        params = (quizName, quizDetail, testArgs, exampleArgs, "1")
+        database_settings = settings.DATABASES
+        mysql_settings = database_settings['default']
+        NAME = mysql_settings['NAME']
+        USER = mysql_settings['USER']
+        PASSWORD = mysql_settings['PASSWORD']
+        HOST = mysql_settings['HOST']
+
+        try:
+            # 데이터베이스 삽입 진행
+            with pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8') as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, params)
+                    conn.commit()
+                return JsonResponse({'message': 'Data inserted successfully'}) 
+        except pymysql.Error as e:
+            # 예외 처리: 데이터 삽입 실패 시
+            logger.error(f'Error: {str(e)}')
+            return JsonResponse({'message': 'Database error occurred'}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
