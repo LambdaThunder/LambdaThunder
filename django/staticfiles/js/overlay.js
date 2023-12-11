@@ -1,13 +1,11 @@
 // 오버레이 열기
 function openOverlay() {
     document.getElementById('overlay').style.display = 'flex';
-    document.querySelector('.close-btn').style.display = 'block';
 }
 
 // 오버레이 닫기
 function closeOverlay() {
     document.getElementById('overlay').style.display = 'none';
-    document.querySelector('.close-btn').style.display = 'none';
 }
 
 // 입력된 내용 처리
@@ -37,18 +35,9 @@ function getValues() {
     return arrayText;
 }
 
-function getParameterByName(name) {
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(window.location.search);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-function setInit(argsnumString){
-    argsnum = parseInt(argsnumString)
-
+function setInit(argsnumString, Example_argument){
+    argsnum = parseInt(argsnumString)-1
+    json_args = JSON.parse(Example_argument)
     if (argsnum < 4 && argsnum > 0) {
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);
@@ -65,10 +54,11 @@ function setInit(argsnumString){
 
         answertext.innerHTML = "Answer";
         answercell.appendChild(answertext);
-        addRow();
+        for (item of json_args) {
+            addRow(item);
+        }
     }
     else {
-        alert("불러오기 오류입니다.");
         var argsnum = 1
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);
@@ -89,13 +79,14 @@ function setInit(argsnumString){
     }
 }
 
-function addRow() {
+function addRow(args = []) {
     var table = document.getElementById("myTable");
 
     if (table.rows.length < 11)
     {
         var table_row = table.getElementsByTagName('tbody')[0];
         var newRow = table_row.insertRow(table_row.rows.length);
+
         var collen = table.rows[0].cells.length;
 
         for (var i = 0; i < collen; i++) {
@@ -103,17 +94,24 @@ function addRow() {
             var input = document.createElement("input");
             input.setAttribute("class", "table_cell");
             input.type = "text";
+            if (args.length != 0) {
+                input.value = args[i]
+                input.setAttribute("id", "TopBar1")
+                input.setAttribute("class","table_cell marginText")
+                input.readOnly = true;
+            }
             cell.appendChild(input);
         }
-    
-        var deleteCell = newRow.insertCell(collen);
-        var deleteButton = document.createElement("button");
-        deleteButton.className = "delete-btn";
-        deleteButton.innerHTML = "삭제";
-        deleteButton.onclick = function() {
-            deleteRow(this);
-        };
-        deleteCell.appendChild(deleteButton);
+        if (args.length == 0) {
+            var deleteCell = newRow.insertCell(collen);
+            var deleteButton = document.createElement("button");
+            deleteButton.setAttribute('class', "delete-btn custom-btn btn-12")
+            deleteButton.innerHTML = "<span>Click!</span><span>열 삭제</span>";
+            deleteButton.onclick = function() {
+                deleteRow(this);
+            };
+            deleteCell.appendChild(deleteButton);
+        }
     }
 }
 
