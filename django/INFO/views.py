@@ -4,7 +4,7 @@ import pymysql, logging
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import logout
-import json
+import json, base64
 
 # Create your views here.
 
@@ -15,11 +15,20 @@ def index(request):
     user_password = request.session.get('userpassword')
     if not (user_id and user_password):
         return redirect('login')
-    #return render(request, 'INFOtemp/index.html')
     return render(request, 'INFOtemp/index.html', {'user_id': user_id, 'user_password': user_password})
-    
+
+def code(request):
+    user_id = request.session.get('userid')
+    user_password = request.session.get('userpassword')
+    if not (user_id and user_password):
+        return redirect('login')
+    return render(request, 'INFOtemp/codeeditor.html', {'user_id': user_id, 'user_password': user_password})  
+
 def login(request):
     return render(request, 'login/login.html')
+
+def alert(request):
+    return render(request, 'login/alert.html')
 
 def list(request):
     user_id = request.session.get('userid')
@@ -27,16 +36,8 @@ def list(request):
     # 세션에 사용자 정보가 없으면 로그인 페이지로 리디렉션
     if not (user_id and user_password):
         return redirect('login')
-    return render(request, 'list/list.html', {'user_id': user_id, 'user_password': user_password})
-
-def list2(request):
-    user_id = request.session.get('userid')
-    user_password = request.session.get('userpassword')
-    # 세션에 사용자 정보가 없으면 로그인 페이지로 리디렉션
-    if not (user_id and user_password):
-        return redirect('login')
     # 여기에 사용자 정보를 활용한 작업 수행
-    return render(request, 'list/list2.html', {'user_id': user_id, 'user_password': user_password})
+    return render(request, 'list/list.html', {'user_id': user_id, 'user_password': user_password})
 
 def logout_view(request):
     logout(request)
@@ -44,7 +45,6 @@ def logout_view(request):
 
 def form(request):
     return render(request, 'form/form.html')
-
 
 @csrf_protect
 def Insert_into_table(request):
@@ -58,8 +58,8 @@ def Insert_into_table(request):
         logger.info(f"Received data - Nickname: {nickname}, ID: {user_id}")
 
         # 파라미터화된 쿼리 사용
-        sql = "INSERT INTO User_table (Nickname, ID, Password) VALUES (%s, %s, password(%s))"
-        params = (nickname, user_id, passwd)
+        sql = "INSERT INTO User_table (Nickname, ID, Password, token) VALUES (%s, %s, password(%s), password(%s))"
+        params = (nickname, user_id, passwd, user_id)
 
         database_settings = settings.DATABASES
         mysql_settings = database_settings['default']
@@ -104,13 +104,13 @@ def login_view(request):
             sql = f"SELECT * FROM User_table WHERE ID = '{user_id}' AND Password = password('{password}')"
             cursor.execute(sql)
             result = cursor.fetchone()
-#---------기존코드 있던자리
             if result:
                 request.session['userid'] = result[2]
                 request.session['userpassword'] = result[3]
-                return redirect('list2')
+                return redirect('list')
             else:
-                return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
+                # return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
+                return render(request, 'login/alert.html')
         except Exception as e:
             # 예외 처리
             logger.error(f"Error connecting to RDS: {str(e)}")
@@ -150,21 +150,54 @@ def quiz(request):
 # post 형식으로 받은 데이터를 index.html로 보내는 함수
 @csrf_protect
 def get_parameter(request):
-    if request.method == 'POST':
-        # Quizname, Quizdetail, Test_argument, Example_argument 의 id 값을 가진 post 값을 가져와 새 id를 할당 후 data에 저장
-        Quizname = request.POST['Quizname']
-        Quizdetail = request.POST['Quizdetail']
-        Test_argument = request.POST['Test_argument']
-        Example_argument = request.POST['Example_argument']
-        data = {
-            'Quizname': Quizname,
-            'Quizdetail': Quizdetail,
-            'Test_argument': Test_argument,
-            'Example_argument': Example_argument,
-        }
+    user_id = request.session.get('userid')
+    user_password = request.session.get('userpassword')
 
-        # 저장된 data를 INFOtemp 경로의 index.html로 전달
-        return render(request, 'INFOtemp/index.html', data)
+    if request.method == 'POST':
+        quiz_id = request.POST.get('Quiz_id')
+
+        database_settings = settings.DATABASES
+        mysql_settings = database_settings['default']
+        NAME = mysql_settings['NAME']
+        USER =  mysql_settings['USER']
+        PASSWORD =  mysql_settings['PASSWORD']
+        HOST =  mysql_settings['HOST']
+
+        conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+        cursor = conn.cursor()
+
+        try:
+            # 사용자 정보 대조 쿼리
+            sql = f"SELECT Quizname, Quizdetail, Test_argument, Example_argument, argsnum, base_code FROM Quiz_table WHERE Quiz_Number = '{quiz_id}'"
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            if result:
+                Quizname = result[0]
+                Quizdetail = result[1]
+                Test_argument = result[2]
+                Example_argument = result[3]
+                argsnum = result[4]
+                base_code = result[5]
+
+                data = {
+                    'user_id': user_id, 
+                    'user_password': user_password,
+                    'Quiz_id': quiz_id,
+                    'Quizname': Quizname,
+                    'Quizdetail': Quizdetail.replace("\n","<br>"),
+                    'Test_argument': Test_argument,
+                    'Example_argument': Example_argument,
+                    'argsnum': argsnum,
+                    'base_code': base64.b64encode(base_code.replace("\r","\t").encode()).decode(),
+                }
+                return render(request, 'INFOtemp/index.html', data)
+            else:
+                pass
+        except Exception as e:
+            logger.error(f"Error connecting to RDS: {str(e)}")
+        finally:
+            conn.close()
+    return render(request, 'INFOtemp/index.html')
 
 @csrf_protect
 def myview(request):
@@ -177,7 +210,7 @@ def myview(request):
 
         testargsnum = json.loads(testArgs)
         exampleargsnum = json.loads(exampleArgs)
-        if len(testargsnum) == 10 and len(exampleargsnum[0]) == 3 :
+        if len(testargsnum) == 5 and len(exampleargsnum) == 2 :
 
             if len(testargsnum[0]) == len(exampleargsnum[0]) :
                 argsnum = len(testargsnum[0])
@@ -206,8 +239,87 @@ def myview(request):
                     logger.error(f'Error: {str(e)}')
                     return JsonResponse({'message': 'Database error occurred'}, status=500)
             else:
-                returnJsonResponse({'error': 'argsnum Error'}, status=400)
+                return JsonResponse({'error': 'argsnum Error'}, status=400)
         else :
-            returnJsonResponse({'error': 'Error there need 10 Test and 3 Exam'}, status=400)
+            return JsonResponse({'error': 'Error there need 10 Test and 3 Exam'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_protect
+def updatesave (request):
+    if request.method == 'POST':
+        try:
+            # POST 요청으로부터 데이터 받아오기
+            data = json.loads(request.body)
+            user_id = data.get('userId', '')  # User ID 받아오기
+            quiz_id = data.get('quizId', '')  # Quiz ID 받아오기
+            code = data.get('CODE', '')  # Quiz ID 받아오기
+
+            database_settings = settings.DATABASES
+            mysql_settings = database_settings['default']
+            NAME = mysql_settings['NAME']
+            USER = mysql_settings['USER']
+            PASSWORD = mysql_settings['PASSWORD']
+            HOST = mysql_settings['HOST']
+
+            conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+            cursor = conn.cursor()
+
+            try:
+                # Quiz_table에서 데이터 가져오기
+                sql1 = f"SELECT * FROM Save_table where userid='{user_id}' and quizid={quiz_id}"
+                cursor.execute(sql1) 
+                save_data = cursor.fetchone()
+                if save_data == None :  #세이브 없음
+                    sql2 = f"INSERT INTO Save_table (userid, quizid, code) VALUES ('{user_id}', {quiz_id}, '{code}')"
+
+                else :
+                    sql2 = f"UPDATE Save_table Set code='{code}' where userid='{user_id}' and quizid={quiz_id}"
+                cursor.execute(sql2)
+                conn.commit()
+            except Exception as e:
+                logger.error(e)
+            finally:
+                conn.close()
+            return JsonResponse({'error': str(e)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+    pass
+
+@csrf_protect
+def loadsave (request):
+    if request.method == 'POST':
+        try:
+            # POST 요청으로부터 데이터 받아오기
+            data = json.loads(request.body)
+            user_id = data.get('userId', '')  # User ID 받아오기
+            quiz_id = data.get('quizId', '')  # Quiz ID 받아오기
+            code = data.get('CODE', '')  # Quiz ID 받아오기
+
+            database_settings = settings.DATABASES
+            mysql_settings = database_settings['default']
+            NAME = mysql_settings['NAME']
+            USER = mysql_settings['USER']
+            PASSWORD = mysql_settings['PASSWORD']
+            HOST = mysql_settings['HOST']
+
+            conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+            cursor = conn.cursor()
+
+            try:
+                # Quiz_table에서 데이터 가져오기
+                sql1 = f"SELECT * FROM Save_table where userid='{user_id}' and quizid={quiz_id}"
+                cursor.execute(sql1) 
+                save_data = cursor.fetchone()
+                if save_data != None :  #세이브 있음
+                    save_code = save_data[2]
+                    return JsonResponse({'save_code': save_code})
+
+            except Exception as e:
+                logger.error(e)
+            finally:
+                conn.close()
+            return JsonResponse({'error': str(e)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+    pass
