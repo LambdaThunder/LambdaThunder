@@ -15,5 +15,6 @@ urlpatterns = [
     path('form/', views.form, name="form"),
     path('myview/', views.myview, name='myview'),
     path('code/', views.code, name="code"),
+    path('alert/', views.myview, name='alert'),
 ]
 

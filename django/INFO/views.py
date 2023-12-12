@@ -27,6 +27,9 @@ def code(request):
 def login(request):
     return render(request, 'login/login.html')
 
+def alert(request):
+    return render(request, 'login/alert.html')
+
 def list(request):
     user_id = request.session.get('userid')
     user_password = request.session.get('userpassword')
@@ -106,7 +109,8 @@ def login_view(request):
                 request.session['userpassword'] = result[3]
                 return redirect('list')
             else:
-                return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
+                # return JsonResponse({'error': '사용자명 또는 비밀번호가 잘못되었습니다.'}, status=400)
+                return render(request, 'login/alert.html')
         except Exception as e:
             # 예외 처리
             logger.error(f"Error connecting to RDS: {str(e)}")

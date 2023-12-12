@@ -21,7 +21,6 @@
           'vs' : "{% static 'lib/min/vs' %}"
         }
       });
-
       require(["vs/editor/editor.main"], () => {
         var editor = monaco.editor.create(document.getElementById('container'), {
           value: atob('{{base_code}}'),
@@ -47,8 +46,12 @@
           }
         };
       });
-      function goToList() {
-          window.location.href = "{% url 'list' %}";
+      function goToList2() {
+        window.location.href = "{% url 'list' %}";
+      }
+
+      function goToList3() {
+        window.location.href = "{% url 'quiz' %}";
       }
     </script>
 
@@ -58,7 +61,6 @@
     <div class="bar1" id="TopBar1">
       <p class="description">Code editor_Lambda-thunder</p>
     </div>
-
     <!-- End of Top Bar -->
 
     <!-- Middle Bar -->
@@ -67,7 +69,8 @@
         <p class="description" id="MiddleBarText">{{ Quizname }}</p>
       </div>
       <div style="flex:1">
-        <button class="custom-btn btn-12 rightbtn" onclick="goToList()"><span>Click!</span><span>이전 페이지로</span></button>
+        <button class="custom-btn btn-12" onclick="goToList3()"><span>Click!</span><span>문제목록 돌아가기</span></button>
+        <button class="custom-btn btn-12" onclick="goToList2()"><span>Click!</span><span>메뉴로 돌아가기</span></button>
       </div>
     </div>
     <!-- End of Middle Bar -->
