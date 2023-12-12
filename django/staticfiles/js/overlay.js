@@ -60,6 +60,33 @@ function jsArrayToPythonString(jsArray) {
     return arrayToString(jsArray);
 }
 
+function setOverlay(argsnum){
+    if (argsnum < 4 && argsnum > 0) {
+        var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
+        var table_body = document.getElementById("myTable").getElementsByTagName('tbody')[0];
+        table_head.innerHTML=""
+        table_body.innerHTML=""
+        var newRow = table_head.insertRow(table_head.rows.length);
+
+        for (var i = 0 ; i < argsnum; i++) {
+            var cell = newRow.insertCell(i);
+            var text = document.createElement("p");
+            text.innerHTML = "ARGS "+(i+1);
+            cell.appendChild(text);
+        }
+
+        var answercell = newRow.insertCell(argsnum);
+        var answertext = document.createElement("p");
+
+        answertext.innerHTML = "Answer";
+        answercell.appendChild(answertext);
+        addRow();
+    }
+    else {
+        setOverlay(2);
+    }
+}
+
 
 function setInit(argsnumString, Example_argument){
     argsnum = parseInt(argsnumString)-1

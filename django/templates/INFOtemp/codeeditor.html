@@ -1,156 +1,149 @@
 {% load static %}
 <!DOCTYPE html>
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=3">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/overlay.css' %}?version=3">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}?version=3">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap">
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=4">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/overlay.css' %}?version=4">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}?version=4">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap">
 
-  <script src="{% static 'lib/min/vs/loader.js' %}?version=3"></script>
-  <script src="{% static 'js/overlay.js' %}?version=3"></script>
-  <script>
-    window.onload = setInit;
-
-    const currentProtocol = window.location.protocol;
-
-    // 적절한 프로토콜에 따라 웹소켓 주소 설정
-    const webSocketProtocol = (currentProtocol === 'https:') ? 'wss://lambdathunder.xyz/socket.io' : 'ws://lambdathunder.xyz:8000';
-
-    const webSocket = new WebSocket(webSocketProtocol);
-
-    require.config({
-      paths: {
-        'vs' : "{% static 'lib/min/vs' %}"
-      }
-    });
-
-    require(["vs/editor/editor.main"], () => {
-      var editor = monaco.editor.create(document.getElementById('container'), {
-        value: `def main(a):\n\tprint(a*5)\n\treturn a*2`,
-        language: 'python',
-        theme: 'vs-dark',
-        scrollBeyondLastLine: false,
-        minimap: { enabled: false },
-      });
-      window.logEditorValue = function() {
-        var code = editor.getValue();
-        var args = getValues();
-        if (args) {
-          alert("매개변수에 빈칸이 있으면 안됩니다.")
-        }
-        else {
-          var json_data = {
-            CODE : code,
-            ARGS : args
-          };
-          var jsonString = JSON.stringify(json_data, null, 2);
-          webSocket.send(jsonString);
-        }
+    <script src="{% static 'lib/min/vs/loader.js' %}?version=4"></script>
+    <script src="{% static 'js/overlay.js' %}?version=4"></script>
+    <script>
+      window.onload = function() {
+        setInit("{{ argsnum }}", "{{Example_argument}}");
       };
-    });
-    webSocket.onmessage = function(event) {
-      const receivedMessage = event.data;
-      const rt = document.getElementById('return');
-      rt.innerHTML = show_json(receivedMessage);
-    };
 
-    function goBack() {
-        window.history.back();
-    };
-  </script>
+      const currentProtocol = window.location.protocol;
 
-<script>
-    function goToList() {
-        window.location.href = "{% url 'list' %}";
-    }
-</script>
+      // 적절한 프로토콜에 따라 웹소켓 주소 설정
+      const webSocketProtocol = (currentProtocol === 'https:') ? 'wss://lambdathunder.xyz/socket.io' : 'ws://lambdathunder.xyz:8000';
 
-</head>
-<body>
-  <!-- Top Bar -->
-   <div class="bar1" id="TopBar1">
-    <p class="description">Code editor_Lambda-thunder</p>
-  </div>
+      const webSocket = new WebSocket(webSocketProtocol);
 
-  <!-- End of Top Bar -->
+      require.config({
+        paths: {
+          'vs' : "{% static 'lib/min/vs' %}"
+        }
+      });
 
-  <!-- Middle Bar -->
-  <div class="bar1" id="MiddleBar1">
-  <button class="custom-btn btn-12" onclick="goToList()"><span>Click!</span><span>이전페이지로 돌아가기</span></button>
-  </div>
-  <!-- End of Middle Bar -->
+      require(["vs/editor/editor.main"], () => {
+        var editor = monaco.editor.create(document.getElementById('container'), {
+          value: atob('{{base_code}}'),
+          language: 'python',
+          theme: 'vs-dark',
+          scrollBeyondLastLine: false,
+          minimap: { enabled: false },
+        });
+        window.logEditorValue = function() {
+          var code = editor.getValue();
+          var args = getValues();
+          if (args) {
+            var json_data = {
+              CODE : code,
+              ARGS : args
+            };
+            var jsonString = JSON.stringify(json_data, null, 2);
+            console.log(jsonString)
+            webSocket.send(jsonString);
+          }
+          else {
+            alert("매개변수에 빈칸이 있으면 안됩니다.")
+          }
+        };
+      });
+      webSocket.onmessage = function(event) {
+        const receivedMessage = event.data;
+        const rt = document.getElementById('return');
+        rt.innerHTML = show_json(receivedMessage);
+      };
 
-  <!-- Overlay Area -->
-  <div id="overlay" class="overlay">
-    <div class="overlay-content" >
-      <div id="table-container">
-        <table id="myTable">
-          <thead>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-      <p>
-      <div class="container">
-  <a class="button" href="#" style="--color:#1e9bff;" onclick="addRow()">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    행추가
-  </a>
-  <a class="close-btn button" href="#" style="--color: #ff1867;" onclick="closeOverlay()">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    닫기
-  </a>
-  {% comment %} <button class="close-btn" onclick="closeOverlay()">닫기</button> {% endcomment %}
-</div>
-        {% comment %} <button onclick="addRow()">행 추가</button>
-        <button class="close-btn" onclick="closeOverlay()">
-          닫기
-        </button> {% endcomment %}
-      </p>
+      function goBack() {
+          window.history.back();
+      };
+    </script>
+
+    <script>
+        function goToList() {
+            window.location.href = "{% url 'list' %}";
+        }
+    </script>
+
+  </head>
+  <body>
+    <!-- Top Bar -->
+    <div class="bar1" id="TopBar1">
+      <p class="description">Code editor</p>
     </div>
-  </div>
-  <!-- End of Overlay Area -->
 
-  <!-- Grid Area -->
-  <div class="case">
-    <div class="grid"  id="resizableGrid">
-      <div class="item merged">
-        <p class="text">
+    <!-- End of Top Bar -->
 
-          제목 = {{ Quizname }}<br /> <!-- Quizname 값 호출 -->
-          문제 = {{ Quizdetail }}<br /> <!-- Quizdetail 값 호출 -->
-          제목 = {{ Test_argument }}<br /> <!-- Test_argument 값 호출 -->
-          문제 = {{ Example_argument }}<br /> <!-- Example_argument 값 호출 -->
-          <a href="/list2/">메인페이지</a><br /> <!-- 메인페이지로 돌아가는 href문 -->
+    <!-- Middle Bar -->
+    <div class="bar1" id="MiddleBar1">
+      <div style="flex:3">
+        <p class="description" id="MiddleBarText">{{ Quizname }}</p>
+      </div>
+      <div style="flex:1">
+        <button class="custom-btn btn-12 rightbtn" onclick="goToList()"><span>Click!</span><span>이전 페이지로</span></button>
+      </div>
+    </div>
+    <!-- End of Middle Bar -->
 
-          아에이오우<br>
+    <!-- Overlay Area -->
+    <div id="overlay" class="overlay">
+      <div class="overlay-content" >
+        <div id="table-container">
+          <table id="myTable">
+            <thead>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <div class="container">            
+            <button class="custom-btn btn-12" onclick="addRow()">
+              <span>Click!</span><span>행추가</span>
+            </button>
+            <button class="custom-btn btn-12" onclick="closeOverlay()">
+              <span>Click!</span><span>닫기</span>
+            </button>
+          </div>
         </p>
       </div>
-      <div class="code">
-        <div id="container"></div>
-      </div>
-      <div class="item text overflow" id="return">
+    </div>
+    <!-- End of Overlay Area -->
+
+    <!-- Grid Area -->
+    <div class="case">
+      <div class="grid"  id="resizableGrid">
+        <div class="item merged">
+          <div id="container"></div>
+        </div>
+        <div class="code item">
+          <div style="padding: 20px; align-items: center; display: flex;">
+            <label for="args" style="color: aquamarine; font-size: 20px; padding-right: 10px;">매개변수 갯수 :  </label>
+            <input style="padding: 10px; font-size: 20px;" type="number" id="args" name="args" value="2">
+            <button  class="custom-btn btn-12" onclick="setOverlay(document.getElementById('args').value,[])" ><span>Click!</span><span>수정</span></button>
+          </div>
+        </div>
+        <div class="item text overflow" id="return">
+          {{Example_argument}}
+        </div>
       </div>
     </div>
-  </div>
-  <!-- End of Grid Area -->
+    <!-- End of Grid Area -->
 
-  <!-- Under Bar -->
-  <div class="bar1 under1" id="UnderBar1">
-    <button class="custom-btn btn-12" onclick="logEditorValue()" id="submit">
-      <span>Click!</span><span>제출하기</span>
-    </button>
-    <button class="custom-btn btn-12" onclick="openOverlay()">
-      <span>Click!</span><span>오버레이 열기</span>
-    </button>
-  </div>
-  <!-- End of Under Bar -->
-</body>
+    <!-- Under Bar -->
+    <div class="bar1 under1" id="UnderBar1">
+      <button class="custom-btn btn-12" onclick="logEditorValue()" id="submit">
+        <span>Click!</span><span>제출하기</span>
+      </button>
+      <button class="custom-btn btn-12" onclick="openOverlay()">
+        <span>Click!</span><span>오버레이 열기</span>
+      </button>
+    </div>
+    <!-- End of Under Bar -->
+  </body>
+</html>
