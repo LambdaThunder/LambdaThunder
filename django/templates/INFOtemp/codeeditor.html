@@ -30,7 +30,7 @@
 
       require(["vs/editor/editor.main"], () => {
         var editor = monaco.editor.create(document.getElementById('container'), {
-          value: atob('{{base_code}}'),
+          value: "def main ( ):\n\tanswer=0\n\treturn answer",
           language: 'python',
           theme: 'vs-dark',
           scrollBeyondLastLine: false,

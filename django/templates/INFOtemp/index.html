@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/overlay.css' %}?version=4">
     <link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}?version=4">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/loading/reverse-spinner.css' %}?version=4" >
 
     <script src="{% static 'lib/min/vs/loader.js' %}?version=4"></script>
     <script src="{% static 'js/overlay.js' %}?version=4"></script>
@@ -14,13 +15,6 @@
       window.onload = function() {
         setInit("{{ argsnum }}", "{{Example_argument}}");
       };
-
-      const currentProtocol = window.location.protocol;
-
-      // 적절한 프로토콜에 따라 웹소켓 주소 설정
-      const webSocketProtocol = (currentProtocol === 'https:') ? 'wss://lambdathunder.xyz/socket.io' : 'ws://lambdathunder.xyz:8000';
-
-      const webSocket = new WebSocket(webSocketProtocol);
 
       require.config({
         paths: {
@@ -46,28 +40,16 @@
             };
             var jsonString = JSON.stringify(json_data, null, 2);
             console.log(jsonString)
-            webSocket.send(jsonString);
+            send(jsonString)
           }
           else {
             alert("매개변수에 빈칸이 있으면 안됩니다.")
           }
         };
       });
-      webSocket.onmessage = function(event) {
-        const receivedMessage = event.data;
-        const rt = document.getElementById('return');
-        rt.innerHTML = show_json(receivedMessage);
-      };
-
-      function goBack() {
-          window.history.back();
-      };
-    </script>
-
-    <script>
-        function goToList() {
-            window.location.href = "{% url 'list' %}";
-        }
+      function goToList() {
+          window.location.href = "{% url 'list' %}";
+      }
     </script>
 
   </head>
@@ -127,7 +109,11 @@
           <div id="container"></div>
         </div>
         <div class="item text overflow" id="return">
-          {{Example_argument}}
+          <div class="show" id="show">
+            <div class="reverse-spinner" id="spinner">
+            </div>
+          </div>
+          <div class="result" id="result">hello</div>
         </div>
       </div>
     </div>
@@ -135,7 +121,10 @@
 
     <!-- Under Bar -->
     <div class="bar1 under1" id="UnderBar1">
-      <button class="custom-btn btn-12" onclick="logEditorValue()" id="submit">
+      <button class="custom-btn btn-12" onclick="check()" id="submit">
+        <span>Click!</span><span>코드 실행</span>
+      </button>
+      <button class="custom-btn btn-12" onclick="loading()" id="submit2">
         <span>Click!</span><span>제출하기</span>
       </button>
       <button class="custom-btn btn-12" onclick="openOverlay()">

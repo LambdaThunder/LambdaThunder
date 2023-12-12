@@ -1,3 +1,22 @@
+const currentProtocol = window.location.protocol;
+
+// 적절한 프로토콜에 따라 웹소켓 주소 설정
+const webSocketProtocol = (currentProtocol === 'https:') ? 'wss://lambdathunder.xyz/socket.io' : 'ws://lambdathunder.xyz:8000';
+
+const webSocket = new WebSocket(webSocketProtocol);
+
+webSocket.onmessage = function(event) {
+    const receivedMessage = event.data;
+    const rt = document.getElementById('result');
+    rt.innerHTML = show_json(receivedMessage);
+    stoploading()
+    enableButton()
+};
+
+function send(jsonString) {
+    webSocket.send(jsonString);
+}
+
 // 오버레이 열기
 function openOverlay() {
     document.getElementById('overlay').style.display = 'flex';
@@ -6,6 +25,34 @@ function openOverlay() {
 // 오버레이 닫기
 function closeOverlay() {
     document.getElementById('overlay').style.display = 'none';
+}
+
+function startloading(){
+    document.getElementById("show").style.display = 'flex'
+}
+
+function stoploading(){
+    document.getElementById("show").style.display = 'none'
+}
+
+function enableButton(){
+    document.getElementById("submit").disabled = false;
+    document.getElementById("submit2").disabled = false;
+}
+
+function disableButton(){
+    document.getElementById("submit").disabled = true;
+    document.getElementById("submit2").disabled = true;
+}
+
+function check(){
+    startloading()
+    logEditorValue()
+    disableButton()
+
+    setTimeout(() => {
+        enableButton();
+    }, 20000);
 }
 
 // 입력된 내용 처리
@@ -86,7 +133,6 @@ function setOverlay(argsnum){
         setOverlay(2);
     }
 }
-
 
 function setInit(argsnumString, Example_argument){
     argsnum = parseInt(argsnumString)-1
@@ -191,7 +237,7 @@ function addRow(args = []) {
             deleteCell.appendChild(deleteButton);
         }
         else {
-            var blankCell = newRow.insertCell(collen);
+            newRow.insertCell(collen);
         }
     }
 }
