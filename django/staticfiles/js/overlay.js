@@ -3,12 +3,15 @@ const currentProtocol = window.location.protocol;
 // 적절한 프로토콜에 따라 웹소켓 주소 설정
 const webSocketProtocol = (currentProtocol === 'https:') ? 'wss://lambdathunder.xyz/socket.io' : 'ws://lambdathunder.xyz:8000';
 
-const webSocket = new WebSocket(webSocketProtocol);
+var webSocket = new WebSocket(webSocketProtocol);
+
+var timerId;
 
 webSocket.onmessage = function(event) {
     const receivedMessage = event.data;
     const rt = document.getElementById('result');
     rt.innerHTML = show_json(receivedMessage);
+    clearTimeout(timerId);
     stoploading()
     enableButton()
 };
@@ -28,11 +31,14 @@ function closeOverlay() {
 }
 
 function startloading(){
+    document.getElementById("result").innerHTML=""
     document.getElementById("show").style.display = 'flex'
+    document.getElementById("return").style.overflow = "hidden"
 }
 
 function stoploading(){
     document.getElementById("show").style.display = 'none'
+    document.getElementById("return").style.overflow = "auto"
 }
 
 function enableButton(){
@@ -45,8 +51,17 @@ function disableButton(){
     document.getElementById("submit2").disabled = true;
 }
 
+function timeout() {
+    var div = document.getElementById("result")
+    div.innerHTML = "<h2 color=#FF0000>Time Out!</h2>"
+    clearTimeout(timerId);
+    webSocket.close();
+    webSocket = new WebSocket(webSocketProtocol);
+}
+
 function check( mode ){
     startloading()
+    clearTimeout(timerId);
     if (mode == "run") {
         logEditorValue()
     }
@@ -59,16 +74,14 @@ function check( mode ){
             };
             var jsonString = JSON.stringify(json_data, null, 2);
             send(jsonString)
-          }
-          else {
-            alert("매개변수에 빈칸이 있으면 안됩니다.")
-          }
+        }
     }
     disableButton()
 
-    setTimeout(() => {
+    timerId = setTimeout(() => {
         enableButton();
-        stoploading;
+        stoploading();
+        timeout();
     }, 20000);
 }
 
@@ -258,14 +271,14 @@ function show_json(receivedMessage) {
         if (json_text.hasOwnProperty(key)) {
             count += 1
             var answer_case = json_text[key];
-            var text = "<li id='result_item'>";
+            var text = "<li style='padding:10px;' id='result_item'>";
             if (answer_case['Print'] != "")
-                text += "<p>출력 결과 : \n" + answer_case['Print'] + "</p>\n";
+                text += "<p style='padding:5px;'>출력 결과 : \n" + answer_case['Print'] + "</p>\n";
             
             var id = (answer_case['Win']) ? "true" : "false";   
             suc += (answer_case['Win']) ? 1 : 0;   
-            text += "<p id='" + id + "'>결과값 : \n" + answer_case['Return'] + "</p>\n";
-            text += "<p id='" + id + "'>기댓값 : \n" + answer_case['Solution'] + "</p>\n</li>\n";
+            text += "<p style='padding:5px;' id='" + id + "'>결과값 : \n" + answer_case['Return'] + "</p>\n";
+            text += "<p style='padding:5px;' id='" + id + "'>기댓값 : \n" + answer_case['Solution'] + "</p>\n</li>\n";
         }
         tmp += text
     }
