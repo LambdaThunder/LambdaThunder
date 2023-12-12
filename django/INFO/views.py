@@ -172,7 +172,7 @@ def get_parameter(request):
                     'Test_argument': Test_argument,
                     'Example_argument': Example_argument,
                     'argsnum': argsnum,
-                    'base_code': base64.b64encode(base_code.encode()).decode(),
+                    'base_code': base64.b64encode(base_code.replace("\r","\t").encode()).decode(),
                 }
                 return render(request, 'INFOtemp/index.html', data)
             else:
