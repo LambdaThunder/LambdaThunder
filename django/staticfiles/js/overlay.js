@@ -35,9 +35,35 @@ function getValues() {
     return arrayText;
 }
 
+function parseHTML (str) {
+    str = str.replaceAll("&quot;","\"")
+    str = str.replaceAll("&lt;","<")
+    str = str.replaceAll("&gt;",">")
+    str = str.replaceAll("&#039;","\'")
+    str = str.replaceAll("&amp;","&")
+    str = str.replaceAll("&nbsp;"," ")
+    str = str.replaceAll("&#035;","#")
+
+    return str
+}
+
+function jsArrayToPythonString(jsArray) {
+    // 재귀적으로 배열을 문자열로 변환하는 함수
+    function arrayToString(arr) {
+        if (Array.isArray(arr)) {
+            return "[" + arr.map(item => arrayToString(item)).join(", ") + "]";
+        } else {
+            return wrap(arr);
+        }
+    }
+
+    return arrayToString(jsArray);
+}
+
+
 function setInit(argsnumString, Example_argument){
     argsnum = parseInt(argsnumString)-1
-    json_args = JSON.parse(Example_argument)
+    json_args = eval(parseHTML(Example_argument))
     if (argsnum < 4 && argsnum > 0) {
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);
@@ -79,6 +105,31 @@ function setInit(argsnumString, Example_argument){
     }
 }
 
+function wrap(str) {
+    var numericRegex = /^-?\d+(\.\d+)?$/;
+
+    if (numericRegex.test(str)) {
+        return str;
+    }
+
+    return '"' + str + '"';
+}
+
+function wraplist(str) {
+    slist = str.toString().split(',')
+    if ( slist.length > 1 ){
+        tmp = []
+        for (item of slist) {
+            tmp.push(wrap(item))
+        }
+
+        return "[" + tmp.join(", ") + "]"
+    }
+    else {
+        return wrap(str)
+    }
+}
+
 function addRow(args = []) {
     var table = document.getElementById("myTable");
 
@@ -95,7 +146,7 @@ function addRow(args = []) {
             input.setAttribute("class", "table_cell");
             input.type = "text";
             if (args.length != 0) {
-                input.value = args[i]
+                input.value = jsArrayToPythonString(args[i])
                 input.setAttribute("id", "TopBar1")
                 input.setAttribute("class","table_cell marginText")
                 input.readOnly = true;
@@ -112,6 +163,9 @@ function addRow(args = []) {
             };
             deleteCell.appendChild(deleteButton);
         }
+        else {
+            var blankCell = newRow.insertCell(collen);
+        }
     }
 }
 
@@ -119,7 +173,6 @@ function deleteRow(btn) {
     var row = btn.parentNode.parentNode;
     row.parentNode.removeChild(row);
 }
-
 
 function show_json(receivedMessage) {
     var count = 0;

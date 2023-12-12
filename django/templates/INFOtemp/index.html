@@ -45,6 +45,7 @@
               ARGS : args
             };
             var jsonString = JSON.stringify(json_data, null, 2);
+            console.log(jsonString)
             webSocket.send(jsonString);
           }
           else {
