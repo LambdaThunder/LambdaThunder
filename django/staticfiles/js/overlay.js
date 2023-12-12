@@ -18,6 +18,55 @@ webSocket.onmessage = function(event) {
 
 function send(jsonString) {
     webSocket.send(jsonString);
+    updatesave()
+}
+
+function updatesave(){
+    var userId = window.userID;
+    var quizId = window.quizID;
+    var url = window.updatesaveurl;
+    var code = window.editor.getValue();
+    fetch(url, {
+        method: 'POST', // 또는 GET 등 HTTP 요청 방식 설정
+        headers: {
+            'Content-Type': 'application/json', // JSON 형태의 데이터 전송
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ userId: userId, quizId: quizId, CODE:code }) // User ID와 Quiz ID 전송
+    })
+    .catch(error => {
+        // 오류 처리
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
+function loadsave(){
+    var userId = window.userID;
+    var quizId = window.quizID;
+    var url = window.loadurl;
+
+    fetch(url, {
+        method: 'POST', // 또는 GET 등 HTTP 요청 방식 설정
+        headers: {
+            'Content-Type': 'application/json', // JSON 형태의 데이터 전송
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ userId: userId, quizId: quizId}) // User ID와 Quiz ID 전송
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // JSON 형식의 응답을 파싱
+    })
+    .then(data => {
+        // 받은 데이터를 처리하여 editor.value에 등록
+        window.editor.setValue(data.save_code)
+    })
+    .catch(error => {
+        // 오류 처리
+        console.error('There was a problem with the fetch operation:', error);
+    });
 }
 
 // 오버레이 열기
@@ -167,6 +216,7 @@ function setOverlay(argsnum){
 function setInit(argsnumString, Example_argument){
     argsnum = parseInt(argsnumString)-1
     json_args = eval(parseHTML(Example_argument))
+    loadsave()
     if (argsnum < 5 && argsnum > 0) {
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);
@@ -287,3 +337,18 @@ function show_json(receivedMessage) {
     return text
 }
 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      var cookies = document.cookie.split(";");
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        // 쿠키 이름으로 시작하는 경우
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }

@@ -16,5 +16,7 @@ urlpatterns = [
     path('myview/', views.myview, name='myview'),
     path('code/', views.code, name="code"),
     path('alert/', views.myview, name='alert'),
+    path('updatesave/', views.updatesave, name='updatesave'),
+    path('loadsave/', views.loadsave, name='loadsave'),
 ]
 

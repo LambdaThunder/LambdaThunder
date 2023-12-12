@@ -150,6 +150,9 @@ def quiz(request):
 # post 형식으로 받은 데이터를 index.html로 보내는 함수
 @csrf_protect
 def get_parameter(request):
+    user_id = request.session.get('userid')
+    user_password = request.session.get('userpassword')
+
     if request.method == 'POST':
         quiz_id = request.POST.get('Quiz_id')
 
@@ -177,6 +180,8 @@ def get_parameter(request):
                 base_code = result[5]
 
                 data = {
+                    'user_id': user_id, 
+                    'user_password': user_password,
                     'Quiz_id': quiz_id,
                     'Quizname': Quizname,
                     'Quizdetail': Quizdetail.replace("\n","<br>"),
@@ -239,3 +244,82 @@ def myview(request):
             return JsonResponse({'error': 'Error there need 10 Test and 3 Exam'}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_protect
+def updatesave (request):
+    if request.method == 'POST':
+        try:
+            # POST 요청으로부터 데이터 받아오기
+            data = json.loads(request.body)
+            user_id = data.get('userId', '')  # User ID 받아오기
+            quiz_id = data.get('quizId', '')  # Quiz ID 받아오기
+            code = data.get('CODE', '')  # Quiz ID 받아오기
+
+            database_settings = settings.DATABASES
+            mysql_settings = database_settings['default']
+            NAME = mysql_settings['NAME']
+            USER = mysql_settings['USER']
+            PASSWORD = mysql_settings['PASSWORD']
+            HOST = mysql_settings['HOST']
+
+            conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+            cursor = conn.cursor()
+
+            try:
+                # Quiz_table에서 데이터 가져오기
+                sql1 = f"SELECT * FROM Save_table where userid='{user_id}' and quizid={quiz_id}"
+                cursor.execute(sql1) 
+                save_data = cursor.fetchone()
+                if save_data == None :  #세이브 없음
+                    sql2 = f"INSERT INTO Save_table (userid, quizid, code) VALUES ('{user_id}', {quiz_id}, '{code}')"
+
+                else :
+                    sql2 = f"UPDATE Save_table Set code='{code}' where userid='{user_id}' and quizid={quiz_id}"
+                cursor.execute(sql2)
+                conn.commit()
+            except Exception as e:
+                logger.error(e)
+            finally:
+                conn.close()
+            return JsonResponse({'error': str(e)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+    pass
+
+@csrf_protect
+def loadsave (request):
+    if request.method == 'POST':
+        try:
+            # POST 요청으로부터 데이터 받아오기
+            data = json.loads(request.body)
+            user_id = data.get('userId', '')  # User ID 받아오기
+            quiz_id = data.get('quizId', '')  # Quiz ID 받아오기
+            code = data.get('CODE', '')  # Quiz ID 받아오기
+
+            database_settings = settings.DATABASES
+            mysql_settings = database_settings['default']
+            NAME = mysql_settings['NAME']
+            USER = mysql_settings['USER']
+            PASSWORD = mysql_settings['PASSWORD']
+            HOST = mysql_settings['HOST']
+
+            conn = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=NAME, charset='utf8')
+            cursor = conn.cursor()
+
+            try:
+                # Quiz_table에서 데이터 가져오기
+                sql1 = f"SELECT * FROM Save_table where userid='{user_id}' and quizid={quiz_id}"
+                cursor.execute(sql1) 
+                save_data = cursor.fetchone()
+                if save_data != None :  #세이브 있음
+                    save_code = save_data[2]
+                    return JsonResponse({'save_code': save_code})
+
+            except Exception as e:
+                logger.error(e)
+            finally:
+                conn.close()
+            return JsonResponse({'error': str(e)})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+    pass
