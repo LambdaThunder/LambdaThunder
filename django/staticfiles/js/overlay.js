@@ -45,13 +45,30 @@ function disableButton(){
     document.getElementById("submit2").disabled = true;
 }
 
-function check(){
+function check( mode ){
     startloading()
-    logEditorValue()
+    if (mode == "run") {
+        logEditorValue()
+    }
+    else {
+        var code = window.editor.getValue();
+        if (mode) {
+            var json_data = {
+              CODE : code,
+              ARGS : jsArrayToPythonString(mode)
+            };
+            var jsonString = JSON.stringify(json_data, null, 2);
+            send(jsonString)
+          }
+          else {
+            alert("매개변수에 빈칸이 있으면 안됩니다.")
+          }
+    }
     disableButton()
 
     setTimeout(() => {
         enableButton();
+        stoploading;
     }, 20000);
 }
 
@@ -108,7 +125,7 @@ function jsArrayToPythonString(jsArray) {
 }
 
 function setOverlay(argsnum){
-    if (argsnum < 4 && argsnum > 0) {
+    if (argsnum < 5 && argsnum > 0) {
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var table_body = document.getElementById("myTable").getElementsByTagName('tbody')[0];
         table_head.innerHTML=""
@@ -137,7 +154,7 @@ function setOverlay(argsnum){
 function setInit(argsnumString, Example_argument){
     argsnum = parseInt(argsnumString)-1
     json_args = eval(parseHTML(Example_argument))
-    if (argsnum < 4 && argsnum > 0) {
+    if (argsnum < 5 && argsnum > 0) {
         var table_head = document.getElementById("myTable").getElementsByTagName('thead')[0];
         var newRow = table_head.insertRow(table_head.rows.length);
 
@@ -186,21 +203,6 @@ function wrap(str) {
     }
 
     return '"' + str + '"';
-}
-
-function wraplist(str) {
-    slist = str.toString().split(',')
-    if ( slist.length > 1 ){
-        tmp = []
-        for (item of slist) {
-            tmp.push(wrap(item))
-        }
-
-        return "[" + tmp.join(", ") + "]"
-    }
-    else {
-        return wrap(str)
-    }
 }
 
 function addRow(args = []) {

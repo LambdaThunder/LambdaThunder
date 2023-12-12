@@ -1,8 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/quiz.css' %}?version=4">
   <title>문제목록</title>
   <style>
     .pagination {
@@ -30,8 +32,7 @@
   </style>
 </head>
 <body>
-
-  <div id="content">
+  <div class="box" id="content">
     <ul id="itemList">
       <!-- quiz_data의 수 만큼 item 값을 증가 -->
       {% for item in quiz_data %}
@@ -41,14 +42,14 @@
                 <!-- contents에 1대1 대응 되는 각 값을 기입하여 전송 -->
                 <input type="hidden" id="Quiz_id" name="Quiz_id" value="{{ item.0 }}">
                 
-                <a href="#" onclick="send('{{ item.0 }}');"><font size="50"><center>{{ item.1 }}</center></font></a>
+                <a href="#" onclick="send('{{ item.0 }}');"><font size="20"><center>{{ item.1 }}</center></font></a>
                 <!-- 각 테이블의 1번 필드(Quizname)을 item 수 만큼 제목 페이지 생성 그 후 parameter 함수의 도착 지점으로 가는 링크 생성 -->
             </form>
         </li>
       {% endfor %}
     </ul>
-  </div>
 
+  </div>
   <ul class="pagination" id="pagination"></ul>
 
   <script>
@@ -57,7 +58,7 @@
     document.addEventListener("DOMContentLoaded", function () {
       const content = document.getElementById("content");
       const itemList = document.getElementById("itemList");
-      const itemsPerPage = 10; // 한 페이지에 띄울 글의 갯수 10개 설정
+      const itemsPerPage = 8; // 한 페이지에 띄울 글의 갯수 설정
       const totalItems = {{ quiz_data|length }}; // Quiz_table의 총합 글의 갯수
       const totalPages = Math.ceil(totalItems / itemsPerPage); // 만들 페이지의 갯수, 총합 글 갯수를 띄을 글 갯수로 나눔
 

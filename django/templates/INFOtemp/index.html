@@ -29,6 +29,9 @@
           scrollBeyondLastLine: false,
           minimap: { enabled: false },
         });
+
+        window.editor = editor;
+
         window.logEditorValue = function() {
           var code = editor.getValue();
           var args = getValues();
@@ -116,7 +119,7 @@
             <div class="reverse-spinner" id="spinner">
             </div>
           </div>
-          <div class="result" id="result">hello</div>
+          <div class="result" id="result"></div>
         </div>
       </div>
     </div>
@@ -124,10 +127,10 @@
 
     <!-- Under Bar -->
     <div class="bar1 under1" id="UnderBar1">
-      <button class="custom-btn btn-12" onclick="check()" id="submit">
+      <button class="custom-btn btn-12" onclick="check('run')" id="submit">
         <span>Click!</span><span>코드 실행</span>
       </button>
-      <button class="custom-btn btn-12" onclick="loading()" id="submit2">
+      <button class="custom-btn btn-12" onclick="check({{Test_argument}})" id="submit2">
         <span>Click!</span><span>제출하기</span>
       </button>
       <button class="custom-btn btn-12" onclick="openOverlay()">
