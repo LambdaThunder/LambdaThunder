@@ -1,0 +1,168 @@
+{% load compress %}
+{% load static %}
+{% compress css %}
+<link rel="stylesheet" type="text/x-scss" href="{% static 'css/sc.css' %}?version=1">
+{% endcompress %}
+<HTML>
+
+<head>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<head>
+  <meta charset="UTF-8">
+  <title>웹 입력 폼</title>
+  <link rel="icon" href="{% static 'img/lambdalogo.png' %}?version=1" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/sc.css' %}">
+  <style>
+    .output-box {
+      background-color: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      overflow-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>웹 입력 폼</h1>
+
+  <form id="quizForm" method="POST" action="{% url 'myview' %}">
+    {% csrf_token %}
+    <label for="titleInput">제목:</label><br>
+    <input type="text" id="titleInput" name="title"><br><br>
+
+    <label for="contentInput">내용:</label><br>
+    <textarea id="contentInput" name="content" rows="4" cols="50"></textarea><br><br>
+
+    <label for="base_code_input">베이스 코드:</label><br>
+    <textarea id="base_code_input" name="base_code" rows="4" cols="50"></textarea><br><br>
+
+    <fieldset>
+      <legend>테스트 아규먼트:</legend>
+      <input type="text" id="test_args" name="test_args"><br><br>
+      <table id="test_args_table">
+          <tbody>
+          </tbody>
+      </table>
+  </fieldset>
+
+  <fieldset>
+      <legend>예제 아규먼트:</legend>
+      <input type="text" id="exam_args" name="example_args"><br><br>
+      <table id="exam_args_table">
+          <tbody>
+          </tbody>
+      </table>
+  </fieldset>
+
+  <input type="submit" id="quizsub" value="퀴즈를 등록">
+</form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var newContent = 'def main():\n\tanswer=0\n\treturn answer';
+
+    var textarea = document.getElementById('base_code_input');
+
+    textarea.value = newContent + textarea.value;
+  });
+
+  createTable(5,5,"test_args");
+  createTable(2,5,"exam_args");
+
+  function createTable(rows, cols, table_id) {
+    const table = document.getElementById(table_id+"_table");
+    for (let i = 0; i < rows; i++) {
+      const row = document.createElement('tr');
+
+      for (let j = 0; j < cols; j++) {
+          const cell = document.createElement('td');
+          const input = document.createElement('input');
+          
+          input.type = 'text';
+          input.name = table_id + `_${i}_${j}`;
+
+          input.addEventListener('input', ()=>{updateOutput(table_id, cols)});
+
+          cell.appendChild(input);
+          row.appendChild(cell);
+      }
+
+      table.querySelector('tbody').appendChild(row);
+    }
+  }
+
+  function updateOutput(tableid, cols) {
+    const inputs = document.querySelectorAll('#' + tableid + "_table" + ' input');
+    const valuesArray = [];
+    let rowArray = [];
+
+    for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
+        if (input.value != "") {
+            rowArray.push(input.value);
+        }
+
+        // 현재 행에 값이 추가되었고, 다음 열이 없는 경우에만 행을 배열에 추가합니다.
+        if ((i + 1) % cols === 0 && rowArray.length > 0) {
+            valuesArray.push(rowArray);
+            rowArray = [];
+        }
+    }
+
+    const ArgsInput = document.getElementById(tableid);
+    var tmp = "[[" + valuesArray.join("],[") + "]]";
+    ArgsInput.value = tmp;
+  }
+  $(document).ready(function () {
+    // "퀴즈 등록" 버튼 클릭 시 폼 제출
+    $(".quizsub").submit(function (event) {
+      event.preventDefault(); // 기본 제출 동작 방지
+
+      // 폼 데이터 가져오기
+      var formData = $(this).serialize();
+      console.log(formData)
+      console.log(JSon.stringify(formData));
+      // AJAX 요청으로 폼 제출
+      $.ajax({
+        type: "POST",
+        url: $(this).attr("action"),
+        data: formData,
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        success: function (response) {
+          // 성공 처리
+          console.log(response);
+
+          // 처리 성공 시 리다이렉트 또는 다른 동작 수행
+          // 예: window.location.href = "/success"; // 성공 시 이동할 URL
+        },
+        error: function (error) {
+          // 오류 처리
+          console.error(error);
+        }
+      });
+    });
+
+    // CSRF 토큰을 쿠키에서 가져오는 함수
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        var cookies = document.cookie.split(";");
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  });
+</script>
+
+</html>

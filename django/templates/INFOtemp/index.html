@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Q. {{Quizname}}</title>
+    <meta charset="UTF-8">
+    <link rel="icon" href="{% static 'img/lambdalogo.png' %}?version=1" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?version=4">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/overlay.css' %}?version=4">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}?version=4">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/loading/reverse-spinner.css' %}?version=4" >
+
+    <script src="{% static 'lib/min/vs/loader.js' %}?version=4"></script>
+    <script src="{% static 'js/overlay.js' %}?version=4"></script>
+    <script>
+      window.userID = "{{user_id}}";
+      window.quizID = "{{Quiz_id}}";
+      window.updatesaveurl = "{% url 'updatesave' %}"
+      window.loadurl = "{% url 'loadsave' %}"
+
+      window.onload = function() {
+        setInit("{{ argsnum }}", "{{Example_argument}}");
+      };
+
+      require.config({
+        paths: {
+          'vs' : "{% static 'lib/min/vs' %}"
+        }
+      });
+      require(["vs/editor/editor.main"], () => {
+        var editor = monaco.editor.create(document.getElementById('container'), {
+          value: atob('{{base_code}}'),
+          language: 'python',
+          theme: 'vs-dark',
+          scrollBeyondLastLine: false,
+          minimap: { enabled: false },
+        });
+        window.editor = editor;
+
+        window.logEditorValue = function() {
+          var code = editor.getValue();
+          var args = getValues();
+          if (args) {
+            var json_data = {
+              CODE : code,
+              ARGS : args
+            };
+            var jsonString = JSON.stringify(json_data, null, 2);
+            console.log(jsonString)
+            send(jsonString)
+          }
+          else {
+            alert("매개변수에 빈칸이 있으면 안됩니다.")
+          }
+        };
+      });
+      function goToList2() {
+        window.location.href = "{% url 'list' %}";
+      }
+
+      function goToList3() {
+        window.location.href = "{% url 'quiz' %}";
+      }
+    </script>
+
+  </head>
+  <body>
+    <!-- Top Bar -->
+    <div class="bar1" id="TopBar1">
+      <p class="description">Code editor_Lambda-thunder</p>
+    </div>
+    <!-- End of Top Bar -->
+
+    <!-- Middle Bar -->
+    <div class="bar1" id="MiddleBar1">
+      <div style="flex:3">
+        <p class="description" id="MiddleBarText">{{ Quizname }}</p>
+      </div>
+      <div style="flex:1">
+        <button class="custom-btn btn-12" onclick="goToList3()"><span>Click!</span><span>문제목록 돌아가기</span></button>
+        <button class="custom-btn btn-12" onclick="goToList2()"><span>Click!</span><span>메뉴로 돌아가기</span></button>
+      </div>
+    </div>
+    <!-- End of Middle Bar -->
+
+    <!-- Overlay Area -->
+    <div id="overlay" class="overlay">
+      <div class="overlay-content" >
+        <div id="table-container">
+          <table id="myTable">
+            <thead>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <div class="container">            
+            <button class="custom-btn btn-12" onclick="addRow()">
+              <span>Click!</span><span>행추가</span>
+            </button>
+            <button class="custom-btn btn-12" onclick="closeOverlay()">
+              <span>Click!</span><span>닫기</span>
+            </button>
+          </div>
+        </p>
+      </div>
+    </div>
+    <!-- End of Overlay Area -->
+
+    <!-- Grid Area -->
+    <div class="case">
+      <div class="grid"  id="resizableGrid">
+        <div class="item merged">
+          <p class="text">
+            {{ Quizdetail|safe }}
+          </p>
+        </div>
+        <div class="code">
+          <div id="container"></div>
+        </div>
+        <div class="item text" id="return">
+          <div class="show" id="show">
+            <div class="reverse-spinner" id="spinner">
+            </div>
+          </div>
+          <div class="result" id="result"></div>
+        </div>
+      </div>
+    </div>
+    <!-- End of Grid Area -->
+
+    <!-- Under Bar -->
+    <div class="bar1 under1" id="UnderBar1">
+      <button class="custom-btn btn-12" onclick="check('run')" id="submit">
+        <span>Click!</span><span>코드 실행</span>
+      </button>
+      <button class="custom-btn btn-12" onclick="check({{Test_argument}})" id="submit2">
+        <span>Click!</span><span>제출하기</span>
+      </button>
+      <button class="custom-btn btn-12" onclick="openOverlay()">
+        <span>Click!</span><span>매개변수 설정</span>
+      </button>
+    </div>
+    <!-- End of Under Bar -->
+  </body>
+</html>

@@ -1,0 +1,123 @@
+html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+body {
+    background-color: rgb(95, 103, 116);
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.description, .link {
+    font-family: 'Amatic SC', cursive;
+    text-align: center;
+  }
+  
+.description {
+    font-size: 35px;
+  }
+
+#container {
+    height: 100%;
+    width: 100%;
+}
+.bar1{
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+}
+
+#TopBar1 {
+    background-color: #909eb3;
+}
+#MiddleBar1 {
+    background-color: rgb(12, 12, 12);
+}
+#UnderBar1 {
+    background-color: #212121;
+}
+
+#MiddleBarText {
+    color: #909eb3;
+}
+
+.marginText {
+    padding: 10px;
+    margin: 10px;
+}
+
+.rightbtn {
+    position: absolute;
+    right: 0;
+}
+
+.item {
+    background-color: #212121;
+    margin: 5px;
+}
+
+.case {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    height: calc(100% - 150px);
+    width: 100%;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    height: 100%;
+    width: 100%;
+    gap: 2px;
+}
+
+.merged {
+    overflow-y: auto;
+    grid-row: span 2; /* 좌측의 두 열을 합병 */
+}
+
+.code {
+    margin: 5px;
+    width: 100%;
+    height: 100%;
+}
+
+.under1 {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 50px;
+}
+
+#submit {
+    height: 30px;
+}
+
+.text {
+    text-align: left;
+    margin: 5px;
+    color: aquamarine;
+}
+
+.show{
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.result {
+    margin: 30px;
+}

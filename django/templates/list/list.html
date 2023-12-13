@@ -1,0 +1,20 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>람다썬더</title>
+		<link rel="icon" href="{% static 'img/lambdalogo.png' %}?version=1" type="image/x-icon">
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="{% static 'css/list2.css' %}">	
+		<link rel="stylesheet" type="text/css" href="{% static 'css/button.css' %}">
+	</head>
+	<body>
+		<div>
+			<h1>람다썬더_Lambdathunder</h1>
+			<h2><a href="{% url 'logout' %}"><button class="button-85" role="button">로그아웃</button></a></h2>
+			<h2><a href="{% url 'quiz' %}"><button class="button-85" role="button">문제목록</button></a></h2> <!-- 퀴즈 리스트 페이지로 이동 -->
+			<h2><a href="{% url 'code' %}"><button class="button-85" role="button">코드작성페이지</button></a></h2>
+		</div>
+	</body>
+</html>
